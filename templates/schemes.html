@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+{% block title %}Browse Schemes — Government Scheme Hub{% endblock %}
+
+{% block content %}
+<div class="browse-page">
+  <div class="browse-header">
+    <h1>Browse Government Schemes</h1>
+    <p>{{ total }} schemes found{% if current_level %} · {{ current_level|title }} Government{% endif %}{% if current_category %} · {{ current_category|title }}{% endif %}{% if current_state %} · {{ current_state }}{% endif %}{% if current_apply_mode %} · {{ current_apply_mode|title }} Apply{% endif %}</p>
+  </div>
+
+  <!-- Type Toggle -->
+  <div class="level-toggle">
+    <a href="{{ url_for('browse_schemes') }}" class="lt-btn {% if not current_level %}active{% endif %}">All Schemes</a>
+    <a href="{{ url_for('browse_schemes', level='central') }}" class="lt-btn {% if current_level == 'central' %}active{% endif %}">🇮🇳 Central Government</a>
+    <a href="{{ url_for('browse_schemes', level='state') }}" class="lt-btn {% if current_level == 'state' %}active{% endif %}">🗺️ State Government</a>
+  </div>
+
+  <!-- State picker (only shown for state level) -->
+  {% if current_level == 'state' %}
+  <div class="state-picker">
+    <div class="state-picker-label">Select State:</div>
+    <div class="states-scroll">
+      <a href="{{ url_for('browse_schemes', level='state') }}" class="state-chip {% if not current_state %}active{% endif %}">All States</a>
+      {% for state in states %}
+      <a href="{{ url_for('browse_schemes', level='state', state=state, category=current_category) }}"
+         class="state-chip {% if current_state == state %}active{% endif %}">
+        {{ state }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="browse-layout">
+    <!-- Sidebar Filters -->
+    <aside class="browse-sidebar">
+      <!-- Search -->
+      <div class="filter-section">
+        <form method="GET" action="{{ url_for('browse_schemes') }}">
+          <input type="hidden" name="level" value="{{ current_level }}">
+          <input type="hidden" name="state" value="{{ current_state }}">
+          <div class="search-box">
+            <input type="text" name="q" placeholder="Search schemes..." value="{{ search }}">
+            <button type="submit">🔍</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Apply Mode Filter -->
+      <div class="filter-section">
+        <div class="filter-title">How to Apply</div>
+        <a href="{{ url_for('browse_schemes', level=current_level, state=current_state, category=current_category, q=search) }}"
+           class="filter-item {% if not current_apply_mode %}active{% endif %}">
+          <span>📋 All Modes</span>
+        </a>
+        <a href="{{ url_for('browse_schemes', level=current_level, state=current_state, category=current_category, apply_mode='online', q=search) }}"
+           class="filter-item {% if current_apply_mode == 'online' %}active{% endif %}">
+          <span>🌐 Apply Online</span>
+          <span class="fi-count apply-online-badge">ONLINE</span>
+        </a>
+        <a href="{{ url_for('browse_schemes', level=current_level, state=current_state, category=current_category, apply_mode='meeseva', q=search) }}"
+           class="filter-item {% if current_apply_mode == 'meeseva' %}active{% endif %}">
+          <span>🏪 MEESEVA / CSC</span>
+          <span class="fi-count apply-meeseva-badge">MEESEVA</span>
+        </a>
+        <a href="{{ url_for('browse_schemes', level=current_level, state=current_state, category=current_category, apply_mode='offline', q=search) }}"
+           class="filter-item {% if current_apply_mode == 'offline' %}active{% endif %}">
+          <span>🏛️ Offline / Office</span>
+        </a>
+      </div>
+
+      <!-- Categories -->
+      <div class="filter-section">
+        <div class="filter-title">Categories</div>
+        <a href="{{ url_for('browse_schemes', level=current_level, state=current_state, apply_mode=current_apply_mode) }}"
+           class="filter-item {% if not current_category %}active{% endif %}">
+          <span>📋 All Categories</span>
+          <span class="fi-count">{{ total }}</span>
+        </a>
+        {% for cat in categories %}
+        <a href="{{ url_for('browse_schemes', level=current_level, state=current_state, category=cat.id, apply_mode=current_apply_mode) }}"
+           class="filter-item {% if current_category == cat.id %}active{% endif %}">
+          <span>{{ cat.icon }} {{ cat.label }}</span>
+          <span class="fi-count">{{ cat_counts.get(cat.id, 0) }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <!-- Scheme Cards -->
+    <div class="browse-results">
+      {% if schemes %}
+        <div class="results-grid">
+          {% for scheme in schemes %}
+          <div class="result-card">
+            <div class="rc-top">
+              <div class="rc-badges">
+                <span class="level-badge {% if scheme.level == 'central' %}central{% else %}state{% endif %}">
+                  {{ 'CENTRAL' if scheme.level == 'central' else scheme.state }}
+                </span>
+                <span class="cat-chip">{{ scheme.category|title }}</span>
+                {% if scheme.apply_mode == 'online' %}
+                  <span class="apply-badge apply-online">🌐 Online</span>
+                {% elif scheme.apply_mode == 'meeseva' %}
+                  <span class="apply-badge apply-meeseva">🏪 MEESEVA</span>
+                {% else %}
+                  <span class="apply-badge apply-offline">🏛️ Offline</span>
+                {% endif %}
+              </div>
+              <button class="save-btn-sm" data-id="{{ scheme._id }}" onclick="toggleSave(this)" title="Save scheme">☆</button>
+            </div>
+            <h3 class="rc-title">{{ scheme.title }}</h3>
+            <p class="rc-desc">{{ scheme.description[:150] }}{% if scheme.description|length > 150 %}...{% endif %}</p>
+            {% if scheme.benefits %}
+            <div class="rc-benefit">💡 {{ scheme.benefits[:80] }}</div>
+            {% endif %}
+            <div class="rc-footer">
+              <a href="{{ url_for('scheme_detail', scheme_id=scheme._id) }}" class="rc-details">View Details →</a>
+              {% if scheme.apply_mode == 'meeseva' %}
+                <a href="{{ url_for('scheme_detail', scheme_id=scheme._id) }}" class="rc-apply rc-meeseva">🏪 MEESEVA</a>
+              {% elif scheme.apply_mode == 'online' %}
+                <a href="{{ scheme.application_url or '#' }}" target="_blank" class="rc-apply">Apply Online →</a>
+              {% else %}
+                <a href="{{ url_for('apply_scheme', scheme_id=scheme._id) }}" class="rc-apply">Apply</a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% set total_pages = ((total - 1) // per_page + 1) %}
+        {% if total_pages > 1 %}
+        <div class="pagination">
+          {% if page > 1 %}
+          <a href="{{ url_for('browse_schemes', page=page-1, level=current_level, state=current_state, category=current_category, apply_mode=current_apply_mode, q=search) }}" class="pg-btn">← Prev</a>
+          {% endif %}
+          <span class="pg-info">Page {{ page }} of {{ total_pages }}</span>
+          {% if page < total_pages %}
+          <a href="{{ url_for('browse_schemes', page=page+1, level=current_level, state=current_state, category=current_category, apply_mode=current_apply_mode, q=search) }}" class="pg-btn">Next →</a>
+          {% endif %}
+        </div>
+        {% endif %}
+
+      {% else %}
+        <div class="empty-results">
+          <div class="er-icon">🔍</div>
+          <h3>No schemes found</h3>
+          <p>Try adjusting your filters or search terms.</p>
+          <a href="{{ url_for('browse_schemes') }}" class="btn-primary">Clear Filters</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

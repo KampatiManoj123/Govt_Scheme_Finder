@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Progress Tracker – Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="tracker-page">
+  <div class="page-header">
+    <div>
+      <h1>📊 Application Progress Tracker</h1>
+      <p>Track all your scheme applications and update their status</p>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card total">
+      <div class="stat-num">{{ stats.total }}</div>
+      <div class="stat-label">Total Applied</div>
+    </div>
+    <div class="stat-card pending">
+      <div class="stat-num">{{ stats.pending }}</div>
+      <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card review">
+      <div class="stat-num">{{ stats.in_review }}</div>
+      <div class="stat-label">In Review</div>
+    </div>
+    <div class="stat-card approved">
+      <div class="stat-num">{{ stats.approved }}</div>
+      <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card rejected">
+      <div class="stat-num">{{ stats.rejected }}</div>
+      <div class="stat-label">Rejected</div>
+    </div>
+  </div>
+
+  {% if applications %}
+  <div class="applications-list">
+    {% for app in applications %}
+    <div class="tracker-card">
+      <div class="tracker-card-header">
+        <div class="scheme-info">
+          <div class="scheme-category-badge cat-{{ app.scheme_category }}">
+            {{ app.scheme_category | title }}
+          </div>
+          <h3>{{ app.scheme_title }}</h3>
+          <div class="scheme-meta">
+            <span>{{ app.scheme_level | title }}</span>
+            {% if app.scheme_state %}<span>• {{ app.scheme_state }}</span>{% endif %}
+            <span>• Applied {{ app.applied_at.strftime('%d %b %Y') if app.applied_at else 'Recently' }}</span>
+          </div>
+        </div>
+        <div class="status-section">
+          <span class="status-badge status-{{ app.status }}">
+            {% if app.status == 'pending' %}⏳ Pending
+            {% elif app.status == 'in_review' %}🔍 In Review
+            {% elif app.status == 'approved' %}✅ Approved
+            {% elif app.status == 'rejected' %}❌ Rejected
+            {% elif app.status == 'documents_required' %}📄 Docs Required
+            {% else %}{{ app.status | title }}{% endif %}
+          </span>
+        </div>
+      </div>
+
+      <!-- Progress Timeline -->
+      <div class="timeline">
+        {% set statuses = ['pending', 'in_review', 'documents_required', 'approved'] %}
+        {% set current_idx = statuses.index(app.status) if app.status in statuses else 0 %}
+        {% for step in ['Submitted', 'In Review', 'Decision', 'Approved'] %}
+        <div class="timeline-step {% if loop.index0 <= current_idx %}completed{% endif %} {% if loop.index0 == current_idx %}active{% endif %}">
+          <div class="step-dot">
+            {% if loop.index0 < current_idx %}✓
+            {% elif loop.index0 == current_idx %}●
+            {% else %}○{% endif %}
+          </div>
+          <div class="step-label">{{ step }}</div>
+        </div>
+        {% if not loop.last %}<div class="timeline-line {% if loop.index0 < current_idx %}filled{% endif %}"></div>{% endif %}
+        {% endfor %}
+      </div>
+
+      <!-- History & Update -->
+      <div class="tracker-footer">
+        <div class="history-section">
+          <button class="toggle-history" onclick="toggleHistory('hist_{{ loop.index }}')">
+            📋 View History ({{ app.status_history|length if app.status_history else 0 }})
+          </button>
+          <div class="history-list hidden" id="hist_{{ loop.index }}">
+            {% for h in (app.status_history or []) | reverse %}
+            <div class="history-item">
+              <span class="h-dot status-dot-{{ h.status }}">●</span>
+              <span class="h-status">{{ h.status | replace('_', ' ') | title }}</span>
+              <span class="h-note">{{ h.note }}</span>
+              <span class="h-date">{{ h.date[:10] }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="update-section">
+          <select class="status-select" id="status_{{ app.scheme_id }}">
+            <option value="pending" {% if app.status=='pending' %}selected{% endif %}>⏳ Pending</option>
+            <option value="in_review" {% if app.status=='in_review' %}selected{% endif %}>🔍 In Review</option>
+            <option value="documents_required" {% if app.status=='documents_required' %}selected{% endif %}>📄 Docs Required</option>
+            <option value="approved" {% if app.status=='approved' %}selected{% endif %}>✅ Approved</option>
+            <option value="rejected" {% if app.status=='rejected' %}selected{% endif %}>❌ Rejected</option>
+          </select>
+          <input type="text" class="note-input" id="note_{{ app.scheme_id }}" placeholder="Add a note...">
+          <button class="update-btn" onclick="updateStatus('{{ app.scheme_id }}', {{ loop.index }})">
+            Update
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📋</div>
+    <h3>No Applications Yet</h3>
+    <p>You haven't applied to any schemes yet. Browse schemes and apply to start tracking.</p>
+    <a href="/schemes" class="browse-btn">Browse Schemes</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function toggleHistory(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('hidden');
+}
+
+async function updateStatus(schemeId, idx) {
+  const status = document.getElementById(`status_${schemeId}`).value;
+  const note = document.getElementById(`note_${schemeId}`).value;
+
+  const res = await fetch('/api/update-application-status', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({scheme_id: schemeId, status, note})
+  });
+  const data = await res.json();
+  if (data.success) {
+    location.reload();
+  } else {
+    alert('Update failed: ' + (data.error || 'Unknown error'));
+  }
+}
+</script>
+
+<style>
+.tracker-page { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
+.page-header { margin-bottom: 1.5rem; }
+.page-header h1 { font-size: 1.6rem; color: white; margin: 0; }
+.page-header p { color: #94a3b8; font-size: .9rem; margin: .3rem 0 0; }
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: .8rem; margin-bottom: 2rem; }
+.stat-card { background: #1e293b; border-radius: .8rem; padding: 1rem; text-align: center; border-top: 3px solid transparent; }
+.stat-card.total { border-top-color: #64748b; }
+.stat-card.pending { border-top-color: #f59e0b; }
+.stat-card.review { border-top-color: #3b82f6; }
+.stat-card.approved { border-top-color: #22c55e; }
+.stat-card.rejected { border-top-color: #ef4444; }
+.stat-num { font-size: 1.8rem; font-weight: 800; color: white; }
+.stat-label { font-size: .75rem; color: #64748b; margin-top: .2rem; }
+.applications-list { display: flex; flex-direction: column; gap: 1.2rem; }
+.tracker-card { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.2rem; }
+.tracker-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+.scheme-info { flex: 1; }
+.scheme-category-badge { display: inline-block; padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; font-weight: 600; background: #f9731620; color: #fb923c; margin-bottom: .4rem; }
+.scheme-info h3 { color: white; font-size: 1rem; margin: 0 0 .3rem; }
+.scheme-meta { color: #64748b; font-size: .8rem; }
+.status-badge { display: inline-block; padding: .4rem .9rem; border-radius: .5rem; font-size: .82rem; font-weight: 600; }
+.status-pending { background: #f59e0b20; color: #fbbf24; }
+.status-in_review { background: #3b82f620; color: #60a5fa; }
+.status-approved { background: #22c55e20; color: #4ade80; }
+.status-rejected { background: #ef444420; color: #f87171; }
+.status-documents_required { background: #8b5cf620; color: #a78bfa; }
+/* Timeline */
+.timeline { display: flex; align-items: center; margin: 1rem 0; }
+.timeline-step { display: flex; flex-direction: column; align-items: center; gap: .3rem; flex-shrink: 0; }
+.step-dot { width: 28px; height: 28px; border-radius: 50%; background: #0f172a; border: 2px solid #334155; display: flex; align-items: center; justify-content: center; font-size: .75rem; color: #64748b; }
+.timeline-step.completed .step-dot { background: #22c55e20; border-color: #22c55e; color: #4ade80; }
+.timeline-step.active .step-dot { background: #f97316; border-color: #f97316; color: white; }
+.step-label { font-size: .7rem; color: #64748b; white-space: nowrap; }
+.timeline-step.active .step-label { color: #f97316; }
+.timeline-line { flex: 1; height: 2px; background: #334155; }
+.timeline-line.filled { background: #22c55e; }
+/* Footer */
+.tracker-footer { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #1e293b; }
+.history-section { flex: 1; min-width: 200px; }
+.toggle-history { background: none; border: 1px solid #334155; color: #94a3b8; padding: .4rem .7rem; border-radius: .4rem; cursor: pointer; font-size: .8rem; }
+.history-list { margin-top: .6rem; display: flex; flex-direction: column; gap: .4rem; }
+.history-item { display: flex; gap: .5rem; font-size: .78rem; align-items: baseline; flex-wrap: wrap; }
+.h-status { color: #94a3b8; font-weight: 600; }
+.h-note { color: #64748b; flex: 1; }
+.h-date { color: #475569; }
+.update-section { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.status-select { background: #0f172a; border: 1px solid #334155; color: white; padding: .4rem .6rem; border-radius: .5rem; font-size: .82rem; }
+.note-input { background: #0f172a; border: 1px solid #334155; color: white; padding: .4rem .6rem; border-radius: .5rem; font-size: .82rem; width: 150px; }
+.note-input::placeholder { color: #475569; }
+.update-btn { background: #f97316; color: white; border: none; padding: .4rem .8rem; border-radius: .5rem; cursor: pointer; font-size: .82rem; font-weight: 600; }
+.empty-state { text-align: center; padding: 3rem; }
+.empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.empty-state h3 { color: white; }
+.empty-state p { color: #64748b; max-width: 350px; margin: .5rem auto 1.5rem; font-size: .9rem; }
+.browse-btn { background: #f97316; color: white; padding: .7rem 1.5rem; border-radius: .7rem; text-decoration: none; font-weight: 600; }
+.hidden { display: none; }
+@media (max-width: 600px) {
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  .stat-card:nth-child(4), .stat-card:nth-child(5) { grid-column: span 1; }
+}
+</style>
+{% endblock %}

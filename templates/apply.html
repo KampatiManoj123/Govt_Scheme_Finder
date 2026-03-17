@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block title %}Apply — {{ scheme.title }}{% endblock %}
+{% block content %}
+<div class="apply-page">
+  <div class="detail-back"><a href="{{ url_for('scheme_detail', scheme_id=scheme._id) }}">← Back to Scheme</a></div>
+  <div class="apply-card">
+    <div class="apply-scheme-info">
+      <span class="level-badge {% if scheme.level == 'central' %}central{% else %}state{% endif %}">
+        {{ 'CENTRAL' if scheme.level == 'central' else scheme.state }}
+      </span>
+      <h1>{{ scheme.title }}</h1>
+      <p>{{ scheme.description[:200] }}</p>
+    </div>
+    <form method="POST" class="apply-form">
+      <h2>Confirm Application</h2>
+      <p>Your profile details will be submitted with this application.</p>
+      {% if profile %}
+      <div class="profile-preview">
+        {% if profile.name %}<div class="pp-item"><span>Name:</span><strong>{{ profile.name }}</strong></div>{% endif %}
+        {% if profile.state %}<div class="pp-item"><span>State:</span><strong>{{ profile.state }}</strong></div>{% endif %}
+        {% if profile.occupation %}<div class="pp-item"><span>Occupation:</span><strong>{{ profile.occupation }}</strong></div>{% endif %}
+        {% if profile.income %}<div class="pp-item"><span>Income:</span><strong>{{ profile.income }}</strong></div>{% endif %}
+      </div>
+      {% else %}
+      <div class="profile-warn">
+        ⚠️ Your profile is incomplete. <a href="{{ url_for('profile') }}">Complete your profile</a> for better results.
+      </div>
+      {% endif %}
+      <div class="apply-actions">
+        <button type="submit" class="btn-apply-confirm">Submit Application →</button>
+        <a href="{{ url_for('scheme_detail', scheme_id=scheme._id) }}" class="btn-cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

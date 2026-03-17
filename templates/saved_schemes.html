@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %}Saved Schemes — Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="saved-page">
+  <div class="page-header">
+    <h1>★ Saved Schemes</h1>
+    <p>{{ schemes|length }} saved scheme{% if schemes|length != 1 %}s{% endif %}</p>
+  </div>
+
+  {% if schemes %}
+  <div class="results-grid">
+    {% for scheme in schemes %}
+    <div class="result-card">
+      <div class="rc-top">
+        <div class="rc-badges">
+          <span class="level-badge {% if scheme.level == 'central' %}central{% else %}state{% endif %}">
+            {{ 'CENTRAL' if scheme.level == 'central' else scheme.state }}
+          </span>
+          <span class="cat-chip">{{ scheme.category|title }}</span>
+        </div>
+        <button class="save-btn-sm saved" data-id="{{ scheme._id }}" onclick="toggleSave(this)" title="Remove">★</button>
+      </div>
+      <h3 class="rc-title">{{ scheme.title }}</h3>
+      <p class="rc-desc">{{ scheme.description[:150] }}{% if scheme.description|length > 150 %}...{% endif %}</p>
+      {% if scheme.benefits %}
+      <div class="rc-benefit">💡 {{ scheme.benefits[:80] }}</div>
+      {% endif %}
+      <div class="rc-footer">
+        <a href="{{ url_for('scheme_detail', scheme_id=scheme._id) }}" class="rc-details">View Details →</a>
+        <a href="{{ url_for('apply_scheme', scheme_id=scheme._id) }}" class="rc-apply">Apply</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-page">
+    <div class="ep-icon">★</div>
+    <h2>No Saved Schemes</h2>
+    <p>Star schemes while browsing to save them here for quick access.</p>
+    <a href="{{ url_for('browse_schemes') }}" class="btn-primary">Browse Schemes →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

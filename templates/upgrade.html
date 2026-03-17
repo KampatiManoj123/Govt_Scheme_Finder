@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% block title %}Upgrade to Pro – Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="upgrade-page">
+
+  <div class="upgrade-hero">
+    <div class="upgrade-badge">⭐ PRO</div>
+    <h1>Unlock the Full Power</h1>
+    <p>AI eligibility matching, document vault, progress tracking and more.</p>
+  </div>
+
+  <div class="plans-row">
+
+    <!-- MONTHLY PLAN -->
+    <div class="plan-card" id="planMonthly">
+      <div class="plan-tag">FLEXIBLE</div>
+      <div class="plan-name">Monthly</div>
+      <div class="plan-price">
+        <span class="plan-currency">&#8377;</span>
+        <span class="plan-amount">29</span>
+        <span class="plan-period">/month</span>
+      </div>
+      <div class="plan-note">Try Pro risk-free &middot; Cancel anytime</div>
+      <ul class="plan-features">
+        <li>&#x2705; Browse 5000+ Schemes</li>
+        <li>&#x1F50D; AI Eligibility Check</li>
+        <li>&#x1F916; AI Assistant</li>
+        <li>&#x1F4C1; Document Vault (50MB)</li>
+        <li>&#x1F4CA; Progress Tracker</li>
+        <li>&#x1F514; New Scheme Alerts</li>
+      </ul>
+      <div class="phone-step" id="phoneStepMonthly">
+        <div class="phone-label">&#x1F4F1; Mobile number for payment OTP</div>
+        <div class="phone-row">
+          <span class="phone-prefix">+91</span>
+          <input type="tel" id="phoneMonthly" placeholder="10-digit number"
+                 maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,''); validatePh('Monthly',this)">
+        </div>
+        <div id="phoneErrMonthly" class="ph-err hidden">Enter valid 10-digit number</div>
+        <button id="proceedMonthly" class="plan-btn" disabled onclick="proceed('monthly')">
+          Continue to Payment &rarr;
+        </button>
+      </div>
+      <div class="pay-step hidden" id="payStepMonthly">
+        <div class="phone-confirmed">&#x2705; +91 <strong id="confirmedMonthly"></strong>
+          <button onclick="changePh('Monthly')" class="change-link">Change</button>
+        </div>
+        <button id="payBtnMonthly" class="plan-btn" onclick="pay('monthly')">
+          <span id="payTxtMonthly">&#x1F513; Pay &#8377;29 &mdash; Activate Pro</span>
+          <div id="paySpinMonthly" class="spinner hidden"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- YEARLY PLAN -->
+    <div class="plan-card plan-popular" id="planYearly">
+      <div class="plan-tag popular-tag">&#x2B50; BEST VALUE</div>
+      <div class="plan-name">Yearly</div>
+      <div class="plan-price">
+        <span class="plan-currency">&#8377;</span>
+        <span class="plan-amount">499</span>
+        <span class="plan-period">/year</span>
+      </div>
+      <div class="plan-note">Save &#8377;49 vs monthly &middot; Best deal</div>
+      <ul class="plan-features">
+        <li>&#x2705; Everything in Monthly</li>
+        <li>&#x1F381; 12 months unlimited access</li>
+        <li>&#x1F512; Priority support</li>
+        <li>&#x1F4C8; Advanced analytics</li>
+        <li>&#x1F31F; Early access to features</li>
+        <li>&#x1F48E; Pro badge on profile</li>
+      </ul>
+      <div class="phone-step" id="phoneStepYearly">
+        <div class="phone-label">&#x1F4F1; Mobile number for payment OTP</div>
+        <div class="phone-row">
+          <span class="phone-prefix">+91</span>
+          <input type="tel" id="phoneYearly" placeholder="10-digit number"
+                 maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,''); validatePh('Yearly',this)">
+        </div>
+        <div id="phoneErrYearly" class="ph-err hidden">Enter valid 10-digit number</div>
+        <button id="proceedYearly" class="plan-btn plan-btn-popular" disabled onclick="proceed('yearly')">
+          Continue to Payment &rarr;
+        </button>
+      </div>
+      <div class="pay-step hidden" id="payStepYearly">
+        <div class="phone-confirmed">&#x2705; +91 <strong id="confirmedYearly"></strong>
+          <button onclick="changePh('Yearly')" class="change-link">Change</button>
+        </div>
+        <button id="payBtnYearly" class="plan-btn plan-btn-popular" onclick="pay('yearly')">
+          <span id="payTxtYearly">&#x1F513; Pay &#8377;499 &mdash; Activate Pro</span>
+          <div id="paySpinYearly" class="spinner hidden"></div>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="pay-note">&#x1F512; Secure payment via Razorpay &nbsp;|&nbsp; Instant activation &nbsp;|&nbsp; No hidden charges</p>
+
+  <div class="comparison-table">
+    <h3>Free vs Pro</h3>
+    <table>
+      <thead><tr><th>Feature</th><th>Free</th><th>Pro</th></tr></thead>
+      <tbody>
+        <tr><td>Browse Schemes</td><td>&#x2705; 5000+</td><td>&#x2705; 5000+</td></tr>
+        <tr><td>Save Schemes</td><td>&#x2705;</td><td>&#x2705;</td></tr>
+        <tr><td>Apply for Schemes</td><td>&#x2705;</td><td>&#x2705;</td></tr>
+        <tr><td>Eligibility Check (AI)</td><td>&#x274C;</td><td>&#x2705;</td></tr>
+        <tr><td>AI Assistant</td><td>&#x274C;</td><td>&#x2705;</td></tr>
+        <tr><td>Document Vault</td><td>&#x274C;</td><td>&#x2705; 50MB</td></tr>
+        <tr><td>Progress Tracker</td><td>&#x274C;</td><td>&#x2705;</td></tr>
+        <tr><td>New Scheme Alerts</td><td>&#x274C;</td><td>&#x2705;</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+const RAZORPAY_KEY = "{{ razorpay_key }}";
+const USER_NAME    = "{{ current_user.username }}";
+const USER_EMAIL   = "{{ current_user.email }}";
+let phones = { monthly: '', yearly: '' };
+
+function validatePh(plan, input) {
+  var val = input.value;
+  var btn = document.getElementById('proceed' + plan);
+  var err = document.getElementById('phoneErr' + plan);
+  var ok  = val.length === 10 && /^[6-9][0-9]{9}$/.test(val);
+  btn.disabled = !ok;
+  input.style.borderColor = val.length > 0 ? (ok ? '#22c55e' : '#ef4444') : '';
+  err.classList.toggle('hidden', val.length < 10 || ok);
+}
+
+function proceed(plan) {
+  var Plan  = plan.charAt(0).toUpperCase() + plan.slice(1);
+  var input = document.getElementById('phone' + Plan);
+  var val   = input.value.trim();
+  if (val.length !== 10 || !/^[6-9][0-9]{9}$/.test(val)) return;
+  phones[plan] = '+91' + val;
+  document.getElementById('confirmed' + Plan).textContent = val;
+  document.getElementById('phoneStep' + Plan).classList.add('hidden');
+  document.getElementById('payStep'   + Plan).classList.remove('hidden');
+}
+
+function changePh(Plan) {
+  var plan = Plan.toLowerCase();
+  phones[plan] = '';
+  document.getElementById('phoneStep' + Plan).classList.remove('hidden');
+  document.getElementById('payStep'   + Plan).classList.add('hidden');
+  var inp = document.getElementById('phone' + Plan);
+  inp.value = '';
+  inp.style.borderColor = '';
+  document.getElementById('proceed' + Plan).disabled = true;
+}
+
+async function pay(plan) {
+  var Plan  = plan.charAt(0).toUpperCase() + plan.slice(1);
+  var phone = phones[plan];
+  if (!phone) { changePh(Plan); return; }
+
+  var btn  = document.getElementById('payBtn'  + Plan);
+  var txt  = document.getElementById('payTxt'  + Plan);
+  var spin = document.getElementById('paySpin' + Plan);
+  btn.disabled = true;
+  txt.textContent = 'Creating order...';
+  spin.classList.remove('hidden');
+
+  try {
+    await fetch('/api/save-phone', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ phone: phone })
+    });
+
+    var res   = await fetch('/create-order', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ plan: plan })
+    });
+    var order = await res.json();
+
+    if (order.error) { alert('Error: ' + order.error); resetBtn(plan); return; }
+
+    var rzp = new Razorpay({
+      key:         RAZORPAY_KEY,
+      amount:      order.amount,
+      currency:    order.currency,
+      name:        'Government Scheme Hub',
+      description: order.description || 'Pro Membership',
+      order_id:    order.order_id,
+      handler: async function(response) {
+        response.plan  = plan;
+        response.phone = phone;
+        var r = await fetch('/api/verify-payment', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(response)
+        });
+        var result = await r.json();
+        if (result.success) {
+          window.location.href = '/payment-success';
+        } else {
+          alert('Verification failed: ' + (result.error || 'Contact support'));
+          resetBtn(plan);
+        }
+      },
+      prefill:  { name: USER_NAME, email: USER_EMAIL, contact: phone },
+      readonly: { contact: true },
+      theme:    { color: '#f97316' },
+      modal:    { ondismiss: function(){ resetBtn(plan); } }
+    });
+    rzp.on('payment.failed', function(resp) {
+      alert('Payment failed: ' + resp.error.description);
+      resetBtn(plan);
+    });
+    rzp.open();
+  } catch(e) {
+    alert('Something went wrong. Please try again.');
+    resetBtn(plan);
+  }
+}
+
+function resetBtn(plan) {
+  var Plan = plan.charAt(0).toUpperCase() + plan.slice(1);
+  var btn  = document.getElementById('payBtn'  + Plan);
+  var txt  = document.getElementById('payTxt'  + Plan);
+  var spin = document.getElementById('paySpin' + Plan);
+  var amt  = plan === 'monthly' ? '\u20B929' : '\u20B9499';
+  if (btn)  btn.disabled = false;
+  if (txt)  txt.textContent = '\uD83D\uDD13 Pay ' + amt + ' \u2014 Activate Pro';
+  if (spin) spin.classList.add('hidden');
+}
+</script>
+
+<style>
+.upgrade-page { max-width:960px; margin:0 auto; padding:2rem 1rem; }
+.upgrade-hero { text-align:center; margin-bottom:2.5rem; }
+.upgrade-badge { display:inline-block; background:linear-gradient(135deg,#f97316,#ea580c); color:#fff; padding:.4rem 1.2rem; border-radius:999px; font-weight:700; font-size:.9rem; margin-bottom:.8rem; }
+.upgrade-hero h1 { font-size:2.2rem; font-weight:800; color:#fff; margin-bottom:.5rem; }
+.upgrade-hero p  { color:#94a3b8; font-size:1.05rem; }
+
+.plans-row { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; }
+@media(max-width:640px){ .plans-row{ grid-template-columns:1fr; } }
+
+.plan-card { background:#1e293b; border:2px solid #334155; border-radius:1.2rem; padding:1.8rem; transition:border-color .2s; }
+.plan-card:hover { border-color:#f97316; }
+.plan-popular { border-color:#f97316; box-shadow:0 0 30px rgba(249,115,22,.15); }
+
+.plan-tag { font-size:.7rem; font-weight:800; letter-spacing:1px; color:#64748b; background:#0f172a; border:1px solid #334155; display:inline-block; padding:.2rem .7rem; border-radius:999px; margin-bottom:.8rem; }
+.popular-tag { color:#f97316; border-color:#f97316; background:rgba(249,115,22,.08); }
+
+.plan-name { font-size:1.3rem; font-weight:800; color:#fff; margin-bottom:.5rem; }
+.plan-price { display:flex; align-items:flex-end; gap:.15rem; margin-bottom:.4rem; }
+.plan-currency { font-size:1.6rem; font-weight:700; color:#f97316; line-height:1.5; }
+.plan-amount   { font-size:3.5rem; font-weight:900; color:#fff; line-height:1; }
+.plan-period   { font-size:.9rem; color:#94a3b8; margin-bottom:.4rem; }
+.plan-note     { font-size:.8rem; color:#64748b; margin-bottom:1.2rem; }
+
+.plan-features { list-style:none; padding:0; margin:0 0 1.5rem; display:flex; flex-direction:column; gap:.5rem; }
+.plan-features li { font-size:.88rem; color:#cbd5e1; }
+
+.phone-label { font-size:.88rem; font-weight:600; color:#e2e8f0; margin-bottom:.5rem; }
+.phone-row { display:flex; align-items:center; background:#0f172a; border:1px solid #334155; border-radius:.6rem; overflow:hidden; margin-bottom:.4rem; }
+.phone-prefix { background:#1a2133; color:#94a3b8; padding:.65rem .85rem; font-weight:600; font-size:.9rem; border-right:1px solid #334155; }
+.phone-row input { flex:1; background:transparent; border:none; outline:none; color:#fff; padding:.65rem .85rem; font-size:.95rem; letter-spacing:1px; }
+.phone-row input::placeholder { color:#475569; letter-spacing:0; }
+.ph-err { color:#f87171; font-size:.78rem; margin-bottom:.4rem; }
+
+.phone-confirmed { background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3); border-radius:.5rem; padding:.6rem .9rem; color:#4ade80; font-size:.85rem; display:flex; align-items:center; gap:.4rem; margin-bottom:.8rem; }
+.phone-confirmed strong { color:#fff; }
+.change-link { margin-left:auto; background:none; border:none; color:#f97316; font-size:.78rem; cursor:pointer; font-weight:600; text-decoration:underline; }
+
+.plan-btn { width:100%; padding:.85rem; background:linear-gradient(135deg,#334155,#1e293b); color:#fff; border:1px solid #475569; border-radius:.7rem; font-size:.95rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:.5rem; transition:all .2s; }
+.plan-btn:hover:not(:disabled) { border-color:#f97316; background:rgba(249,115,22,.1); }
+.plan-btn:disabled { opacity:.45; cursor:not-allowed; }
+
+.plan-btn-popular { background:linear-gradient(135deg,#f97316,#ea580c); border-color:#f97316; }
+.plan-btn-popular:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 8px 25px rgba(249,115,22,.4); }
+
+.pay-note { text-align:center; font-size:.8rem; color:#64748b; margin-bottom:2rem; }
+
+.spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.hidden { display:none !important; }
+
+.comparison-table { background:#1e293b; border-radius:1rem; padding:1.5rem; margin-top:1rem; }
+.comparison-table h3 { color:#fff; margin-bottom:1rem; }
+.comparison-table table { width:100%; border-collapse:collapse; }
+.comparison-table th, .comparison-table td { padding:.6rem .8rem; text-align:left; border-bottom:1px solid #334155; font-size:.88rem; }
+.comparison-table th { color:#f97316; font-weight:600; }
+.comparison-table td { color:#cbd5e1; }
+
+/* Apply badges in scheme cards */
+.apply-badge { font-size:.65rem; font-weight:700; padding:.15rem .45rem; border-radius:4px; }
+.apply-online  { background:rgba(59,130,246,.15); color:#60a5fa; border:1px solid rgba(59,130,246,.3); }
+.apply-meeseva { background:rgba(168,85,247,.15); color:#c084fc; border:1px solid rgba(168,85,247,.3); }
+.apply-offline { background:rgba(100,116,139,.15); color:#94a3b8; border:1px solid rgba(100,116,139,.3); }
+.apply-online-badge  { background:rgba(59,130,246,.15); color:#60a5fa; border:1px solid rgba(59,130,246,.3); font-size:.65rem; padding:.2rem .5rem; border-radius:4px; }
+.apply-meeseva-badge { background:rgba(168,85,247,.15); color:#c084fc; border:1px solid rgba(168,85,247,.3); font-size:.65rem; padding:.2rem .5rem; border-radius:4px; }
+.rc-meeseva { background:rgba(168,85,247,.2) !important; color:#c084fc !important; border-color:rgba(168,85,247,.4) !important; }
+</style>
+{% endblock %}

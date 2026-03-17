@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}Verify OTP — Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <span class="brand-in-badge" style="font-size:0.8rem;padding:4px 10px;">IN</span>
+      <div>
+        <div class="auth-brand-gov">Government</div>
+        <div class="auth-brand-hub">Scheme Hub</div>
+      </div>
+    </div>
+    <h2 class="auth-headline">Check your inbox for the OTP.</h2>
+    <p class="auth-subtext">We've sent a 6-digit OTP to your email. Enter it below within 2 minutes.</p>
+    <div class="auth-features">
+      <div class="af-item">📧 Check spam folder if not received</div>
+      <div class="af-item">⏱️ OTP expires in 2 minutes</div>
+      <div class="af-item">🔁 Resend available after timer ends</div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <h2 class="auth-title">Enter OTP</h2>
+      <p class="auth-subtitle">6-digit code sent to your email</p>
+
+      <!-- Timer display -->
+      <div id="timer-wrap" style="text-align:center;margin-bottom:18px;">
+        <div id="timer-circle"
+             style="display:inline-flex;align-items:center;justify-content:center;
+                    width:80px;height:80px;border-radius:50%;
+                    border:4px solid var(--orange,#FF6B35);
+                    font-size:1.4rem;font-weight:700;color:var(--orange,#FF6B35);
+                    transition:border-color 0.3s,color 0.3s;">
+          <span id="timer-text">2:00</span>
+        </div>
+        <p id="timer-label" style="margin:8px 0 0;font-size:0.82rem;color:#888;">
+          OTP valid for 2 minutes
+        </p>
+      </div>
+
+      <!-- OTP form -->
+      <form method="POST" class="auth-form" id="otp-form">
+        <div class="form-group">
+          <label>OTP Code</label>
+          <input type="text" name="otp" id="otp-input"
+                 placeholder="_ _ _ _ _ _" required maxlength="6"
+                 pattern="\d{6}" inputmode="numeric"
+                 style="font-size:1.8rem;letter-spacing:12px;text-align:center;
+                        padding:12px;font-family:monospace;">
+        </div>
+        <button type="submit" class="btn-auth" id="verify-btn">Verify OTP →</button>
+      </form>
+
+      <!-- Expired message (hidden initially) -->
+      <div id="expired-msg" style="display:none;text-align:center;
+           background:#fff3f3;border:1px solid #ffcdd2;border-radius:8px;
+           padding:12px;margin-top:12px;color:#c62828;font-size:0.9rem;">
+        ⚠️ OTP has expired. Please request a new one.
+      </div>
+
+      <!-- Resend section -->
+      <div style="margin-top:16px;text-align:center;">
+        <p id="resend-waiting" style="font-size:0.85rem;color:#999;margin:0;">
+          Resend available after timer ends
+        </p>
+        <button id="resend-btn" onclick="resendOTP()"
+                style="display:none;background:none;border:none;
+                       color:var(--orange,#FF6B35);font-size:0.9rem;
+                       font-weight:600;cursor:pointer;text-decoration:underline;padding:4px 0;">
+          🔁 Resend OTP
+        </button>
+        <p id="resend-loading" style="display:none;font-size:0.85rem;color:#888;">
+          Sending new OTP...
+        </p>
+        <p id="resend-success" style="display:none;font-size:0.85rem;color:#2e7d32;font-weight:600;">
+          ✅ New OTP sent! Check your inbox.
+        </p>
+      </div>
+
+      <p class="auth-switch" style="margin-top:20px;">
+        <a href="{{ url_for('forgot_password') }}">← Back</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+const sentAtRaw    = "{{ otp_sent_at | default('') }}";
+const OTP_DURATION = 120; // 2 minutes
+let timerInterval  = null;
+let expired        = false;
+
+function getSecondsLeft() {
+  if (!sentAtRaw) return OTP_DURATION;
+  const sentAt  = new Date(sentAtRaw.trim() + 'Z');
+  const elapsed = Math.floor((Date.now() - sentAt.getTime()) / 1000);
+  return Math.max(0, OTP_DURATION - elapsed);
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return m + ':' + s.toString().padStart(2, '0');
+}
+
+function setExpired() {
+  expired = true;
+  clearInterval(timerInterval);
+  document.getElementById('timer-circle').style.borderColor = '#e53935';
+  document.getElementById('timer-circle').style.color       = '#e53935';
+  document.getElementById('timer-text').textContent         = '0:00';
+  document.getElementById('timer-label').textContent        = 'OTP expired';
+  document.getElementById('expired-msg').style.display      = 'block';
+  document.getElementById('resend-waiting').style.display   = 'none';
+  document.getElementById('resend-btn').style.display       = 'inline-block';
+  document.getElementById('verify-btn').disabled            = true;
+  document.getElementById('verify-btn').style.opacity       = '0.5';
+  document.getElementById('otp-input').disabled             = true;
+}
+
+function resetUI() {
+  expired = false;
+  document.getElementById('timer-circle').style.borderColor = 'var(--orange,#FF6B35)';
+  document.getElementById('timer-circle').style.color       = 'var(--orange,#FF6B35)';
+  document.getElementById('timer-label').textContent        = 'OTP valid for 2 minutes';
+  document.getElementById('expired-msg').style.display      = 'none';
+  document.getElementById('resend-waiting').style.display   = 'block';
+  document.getElementById('resend-btn').style.display       = 'none';
+  document.getElementById('resend-loading').style.display   = 'none';
+  document.getElementById('verify-btn').disabled            = false;
+  document.getElementById('verify-btn').style.opacity       = '1';
+  document.getElementById('otp-input').disabled             = false;
+  document.getElementById('otp-input').value                = '';
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  resetUI();
+  timerInterval = setInterval(() => {
+    const secs = getSecondsLeft();
+    document.getElementById('timer-text').textContent = formatTime(secs);
+    if (secs <= 30) {
+      document.getElementById('timer-circle').style.borderColor = '#e53935';
+      document.getElementById('timer-circle').style.color       = '#e53935';
+    }
+    if (secs <= 0) setExpired();
+  }, 500);
+}
+
+// After resend — count from now
+let resendStart = null;
+function startTimerFromNow() {
+  clearInterval(timerInterval);
+  resendStart = Date.now();
+  resetUI();
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - resendStart) / 1000);
+    const secs    = Math.max(0, OTP_DURATION - elapsed);
+    document.getElementById('timer-text').textContent = formatTime(secs);
+    if (secs <= 30) {
+      document.getElementById('timer-circle').style.borderColor = '#e53935';
+      document.getElementById('timer-circle').style.color       = '#e53935';
+    }
+    if (secs <= 0) setExpired();
+  }, 500);
+}
+
+async function resendOTP() {
+  document.getElementById('resend-btn').style.display     = 'none';
+  document.getElementById('resend-loading').style.display = 'block';
+  try {
+    const resp = await fetch('/resend-otp', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({})
+    });
+    const data = await resp.json();
+    document.getElementById('resend-loading').style.display = 'none';
+    if (data.success) {
+      document.getElementById('resend-success').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('resend-success').style.display = 'none';
+      }, 3000);
+      startTimerFromNow();
+    } else {
+      document.getElementById('resend-btn').style.display = 'inline-block';
+      alert('Failed: ' + (data.error || 'Unknown error'));
+    }
+  } catch(e) {
+    document.getElementById('resend-loading').style.display = 'none';
+    document.getElementById('resend-btn').style.display     = 'inline-block';
+    alert('Network error. Please try again.');
+  }
+}
+
+// Auto-submit when 6 digits typed
+document.getElementById('otp-input').addEventListener('input', function() {
+  if (this.value.length === 6 && !expired) {
+    document.getElementById('otp-form').submit();
+  }
+});
+
+// Kick off timer on page load
+startTimer();
+</script>
+{% endblock %}

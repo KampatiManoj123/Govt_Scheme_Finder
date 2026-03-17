@@ -1,0 +1,299 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard — Government Scheme Hub{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+
+  <!-- Welcome Header -->
+  <div class="welcome-header">
+    <div class="welcome-left">
+      <h1 class="welcome-title">Welcome back, <span class="name-highlight">{{ current_user.username }}</span> 👋</h1>
+      <p class="welcome-sub">Here's what's new in your scheme matches today.</p>
+    </div>
+    <div class="welcome-stats">
+      <div class="welcome-stat">
+        <div class="ws-value">{{ ((matched_count / (matched_count + 5)) * 100)|int if matched_count else 0 }}%</div>
+        <div class="ws-label">Avg Match</div>
+      </div>
+      <div class="welcome-stat">
+        <div class="ws-value">{{ saved_count }}</div>
+        <div class="ws-label">Saved</div>
+      </div>
+      <div class="welcome-stat">
+        <div class="ws-value">{{ app_count }}</div>
+        <div class="ws-label">Applied</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards Row -->
+  <div class="summary-grid">
+    <div class="summary-card s-green">
+      <div class="sc-icon">📊</div>
+      <div class="sc-body">
+        <div class="sc-label">Matched Schemes</div>
+        <div class="sc-value">{{ matched_count }}</div>
+        <div class="sc-sub">Based on your profile</div>
+      </div>
+    </div>
+    <div class="summary-card s-blue">
+      <div class="sc-icon">🆕</div>
+      <div class="sc-body">
+        <div class="sc-label">New This Week</div>
+        <div class="sc-value">{{ new_count }}</div>
+        <div class="sc-sub">+{{ new_count }} from last week</div>
+      </div>
+    </div>
+    <div class="summary-card s-orange">
+      <div class="sc-icon">📋</div>
+      <div class="sc-body">
+        <div class="sc-label">Applications</div>
+        <div class="sc-value">{{ app_count }}</div>
+        <div class="sc-sub">{% if app_count > 0 %}{{ app_count }} pending review{% else %}No applications yet{% endif %}</div>
+      </div>
+    </div>
+    <div class="summary-card s-purple">
+      <div class="sc-icon">👤</div>
+      <div class="sc-body">
+        <div class="sc-label">Profile Complete</div>
+        <div class="sc-value">{{ profile_pct }}%</div>
+        <div class="sc-sub">Fill more for better matches</div>
+        <div class="profile-progress">
+          <div class="profile-progress-bar" style="width: {{ profile_pct }}%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two Column Layout -->
+  <div class="dash-grid">
+
+    <!-- Left: Top Matches -->
+    <div class="dash-col-main">
+
+      <!-- Top Matches -->
+      <section class="dash-section">
+        <div class="section-header">
+          <h2>⭐ Top Matches For You</h2>
+          {% if current_user.is_pro %}
+          <a href="{{ url_for('browse_schemes') }}" class="view-all">View All →</a>
+          {% else %}
+          <a href="{{ url_for('upgrade') }}" class="pro-lock-btn">🔒 Unlock with Pro</a>
+          {% endif %}
+        </div>
+
+        {% if current_user.is_pro and top_matches %}
+          <div class="scheme-cards-grid">
+            {% for scheme in top_matches %}
+            <div class="scheme-card">
+              <div class="scheme-card-top">
+                <div class="scheme-meta">
+                  <span class="level-badge {% if scheme.level == 'central' %}central{% else %}state{% endif %}">
+                    {{ 'CENTRAL' if scheme.level == 'central' else scheme.state|upper }}
+                  </span>
+                  <span class="match-badge">{{ [88,91,92,85,93,89]|random }}% MATCH</span>
+                </div>
+                <button class="save-btn" data-id="{{ scheme._id }}" onclick="toggleSave(this)">★</button>
+              </div>
+              <h3 class="scheme-title">{{ scheme.title }}</h3>
+              <p class="scheme-desc">{{ scheme.description[:120] }}...</p>
+              <div class="scheme-tags">
+                <span class="scheme-tag">🏷️ {{ scheme.category|title }}</span>
+                <span class="scheme-tag">🏛️ {{ 'Central Govt' if scheme.level == 'central' else scheme.state }}</span>
+              </div>
+              <div class="match-score-bar">
+                <div class="match-bar-fill" style="width: {{ [88,91,92,85,93,89]|random }}%"></div>
+              </div>
+              <div class="scheme-actions">
+                <a href="{{ url_for('apply_scheme', scheme_id=scheme._id) }}" class="btn-apply">Apply</a>
+                <a href="{{ url_for('scheme_detail', scheme_id=scheme._id) }}" class="btn-details">Details</a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% elif current_user.is_pro %}
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <p>Complete your profile to get personalized matches</p>
+            <a href="{{ url_for('profile') }}" class="btn-primary">Complete Profile</a>
+          </div>
+        {% else %}
+          <div class="pro-overlay-card">
+            <div class="pro-lock">🔒</div>
+            <h3>Top Matches is a Pro Feature</h3>
+            <p>Upgrade to Pro to see AI-powered scheme matches based on your profile, state, income and eligibility.</p>
+            <a href="{{ url_for('upgrade') }}" class="btn-upgrade-big">⚡ Upgrade to Pro — ₹99/month</a>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- New This Week -->
+      <section class="dash-section">
+        <div class="section-header">
+          <h2>🆕 New This Week</h2>
+          <a href="{{ url_for('browse_schemes') }}" class="view-all">View All →</a>
+        </div>
+        {% if new_schemes %}
+          <div class="list-schemes">
+            {% for scheme in new_schemes %}
+            <div class="list-scheme-item">
+              <div class="lsi-left">
+                <span class="lsi-cat-icon">
+                  {% if scheme.category == 'agriculture' %}🌾
+                  {% elif scheme.category == 'healthcare' %}🏥
+                  {% elif scheme.category == 'education' %}📚
+                  {% elif scheme.category == 'housing' %}🏠
+                  {% elif scheme.category == 'women' %}👩‍👧
+                  {% elif scheme.category == 'farmer' %}👨‍🌾
+                  {% elif scheme.category == 'finance' %}💰
+                  {% elif scheme.category == 'employment' %}💼
+                  {% else %}📋{% endif %}
+                </span>
+                <div>
+                  <div class="lsi-title">{{ scheme.title }}</div>
+                  <div class="lsi-sub">{{ scheme.category|title }} · {{ 'Central' if scheme.level == 'central' else scheme.state }}</div>
+                </div>
+              </div>
+              <div class="lsi-right">
+                <span class="lsi-new-badge">NEW</span>
+                <a href="{{ url_for('scheme_detail', scheme_id=scheme._id) }}" class="lsi-view">View →</a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="muted-text">No new schemes this week. Check back later.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <!-- Right: Sidebar widgets -->
+    <div class="dash-col-side">
+
+      <!-- Recent Applications -->
+      <section class="dash-section">
+        <div class="section-header">
+          <h2>📋 Recent Applications</h2>
+          <a href="{{ url_for('my_applications') }}" class="view-all">View All →</a>
+        </div>
+        {% if recent_apps %}
+          {% for app in recent_apps %}
+          <div class="app-item">
+            <div class="app-item-left">
+              <div class="app-title">{{ app.scheme_title[:35] }}{% if app.scheme_title|length > 35 %}...{% endif %}</div>
+              <div class="app-date">{{ app.applied_at.strftime('%d %b %Y') if app.applied_at else 'N/A' }}</div>
+            </div>
+            <span class="app-status {{ app.status }}">{{ app.status|title }}</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state-sm">
+            <p>No applications yet. Browse schemes and apply!</p>
+            <a href="{{ url_for('browse_schemes') }}" class="btn-sm-primary">Browse Schemes</a>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- Saved Schemes -->
+      <section class="dash-section">
+        <div class="section-header">
+          <h2>★ Saved Schemes</h2>
+          <a href="{{ url_for('saved_schemes') }}" class="view-all">View All →</a>
+        </div>
+        {% if saved_details %}
+          {% for scheme in saved_details %}
+          <div class="saved-item">
+            <div class="si-title">{{ scheme.title[:40] }}{% if scheme.title|length > 40 %}...{% endif %}</div>
+            <div class="si-meta">
+              <span>{{ scheme.category|title }}</span>
+              <a href="{{ url_for('scheme_detail', scheme_id=scheme._id) }}" class="si-view">→</a>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="muted-text">No saved schemes yet. Star a scheme to save it here.</p>
+        {% endif %}
+      </section>
+
+      <!-- Browse by Category -->
+      <section class="dash-section">
+        <div class="section-header">
+          <h2>📁 Browse Categories</h2>
+        </div>
+        <div class="cat-quick-grid">
+          {% for cat in categories[:12] %}
+          <a href="{{ url_for('browse_schemes', category=cat.id) }}" class="cat-quick-item">
+            <span class="cqi-icon">{{ cat.icon }}</span>
+            <span class="cqi-label">{{ cat.label }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Profile Completion Nudge -->
+      {% if profile_pct < 80 %}
+      <section class="dash-section profile-nudge">
+        <div class="nudge-icon">📝</div>
+        <h3>Complete Your Profile</h3>
+        <p>Your profile is {{ profile_pct }}% complete. Fill in more details to get better scheme matches.</p>
+        <div class="nudge-progress">
+          <div class="nudge-bar" style="width: {{ profile_pct }}%"></div>
+        </div>
+        <a href="{{ url_for('profile') }}" class="btn-nudge">Complete Profile →</a>
+      </section>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Browse Central / State Schemes Section -->
+  <section class="dash-section">
+    <div class="section-header">
+      <h2>🏛️ Browse By Type</h2>
+    </div>
+    <div class="browse-type-grid">
+      <a href="{{ url_for('browse_schemes', level='central') }}" class="browse-type-card central-card">
+        <div class="btc-icon">🇮🇳</div>
+        <div class="btc-body">
+          <h3>Central Government Schemes</h3>
+          <p>National schemes covering agriculture, healthcare, housing, education, employment and more.</p>
+          <div class="btc-cats">
+            {% for cat in categories[:8] %}
+            <span>{{ cat.icon }} {{ cat.label }}</span>
+            {% endfor %}
+          </div>
+          <span class="btc-cta">Browse Central Schemes →</span>
+        </div>
+      </a>
+      <a href="{{ url_for('browse_schemes', level='state') }}" class="browse-type-card state-card">
+        <div class="btc-icon">🗺️</div>
+        <div class="btc-body">
+          <h3>State Government Schemes</h3>
+          <p>State-specific schemes tailored for residents of each Indian state.</p>
+          <div class="states-mini-list">
+            <span>Telangana</span><span>Andhra Pradesh</span><span>Maharashtra</span>
+            <span>Karnataka</span><span>Tamil Nadu</span><span>Gujarat</span>
+            <span>Rajasthan</span><span>UP</span><span>+29 more</span>
+          </div>
+          <span class="btc-cta">Browse State Schemes →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Unlock Pro Banner -->
+  {% if not current_user.is_pro %}
+  <div class="pro-banner">
+    <div class="pro-banner-left">
+      <div class="pro-banner-icon">⚡</div>
+      <div>
+        <h3>Unlock Pro Features</h3>
+        <p>Get AI-powered eligibility checks, top scheme matches, document vault, and priority application support.</p>
+      </div>
+    </div>
+    <a href="{{ url_for('upgrade') }}" class="btn-upgrade-banner">Upgrade to Pro →</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

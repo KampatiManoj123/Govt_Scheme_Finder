@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% block title %}Government Scheme Hub — Find Schemes You Qualify For{% endblock %}
+{% block content %}
+<div class="landing-page">
+  <nav class="landing-nav">
+    <!-- 1. Brand -->
+    <div class="landing-brand">
+      <span class="brand-in-badge">IN</span>
+      <span class="brand-gov">Government</span>
+      <span class="brand-hub">Scheme Hub</span>
+    </div>
+
+    <!-- 2. Center Navigation Pill -->
+    <div class="nav-center-pill">
+      <a href="{{ url_for('index') }}" class="nav-active">Home</a>
+      <a href="{{ url_for('browse_schemes') }}">Browse Schemes</a>
+      <a href="#features">Categories</a>
+      <a href="#how-it-works">How it Works</a>
+    </div>
+
+    <!-- 3. Right Utilities -->
+    <div class="nav-utilities">
+      <a href="{{ url_for('login') }}" class="nav-login">Login</a>
+      <a href="{{ url_for('register') }}" class="nav-signup">Register Free</a>
+
+      <!-- Divider -->
+      <div class="nav-divider"></div>
+
+      <!-- Translator -->
+      <div class="nav-icon-wrap translator-wrap" id="translatorWrap">
+        <button class="nav-icon-btn" id="translatorBtn" title="Translate" aria-label="Language Translator">🌐</button>
+        <div class="radial-menu translator-menu" id="translatorMenu">
+          <button class="radial-item" onclick="translatePage('hi')">हि Hindi</button>
+          <button class="radial-item" onclick="translatePage('te')">తె Telugu</button>
+          <button class="radial-item" onclick="translatePage('ta')">த Tamil</button>
+          <button class="radial-item" onclick="translatePage('bn')">ব Bengali</button>
+          <button class="radial-item" onclick="translatePage('mr')">म Marathi</button>
+          <button class="radial-item" onclick="translatePage('gu')">ગ Gujarati</button>
+          <button class="radial-item" onclick="translatePage('kn')">ಕ Kannada</button>
+          <button class="radial-item" onclick="translatePage('ml')">മ Malayalam</button>
+          <button class="radial-item" onclick="translatePage('pa')">ਪ Punjabi</button>
+          <button class="radial-item" onclick="translatePage('ur')">اُ Urdu</button>
+          <button class="radial-item" onclick="translatePage('or')">ଓ Odia</button>
+          <button class="radial-item" onclick="translatePage('en')">En English</button>
+        </div>
+      </div>
+
+      <!-- Accessibility -->
+      <div class="nav-icon-wrap access-wrap" id="accessWrap">
+        <button class="nav-icon-btn" id="accessBtn" title="Accessibility" aria-label="Accessibility Options">♿</button>
+        <div class="radial-menu access-menu" id="accessMenu">
+          <button class="radial-item" onclick="setFontSize('small')">🔡 Small Text</button>
+          <button class="radial-item access-mid" onclick="setFontSize('medium')">🔤 Medium Text</button>
+          <button class="radial-item access-large" onclick="setFontSize('large')">🔠 Large Text</button>
+          <button class="radial-item" onclick="setTheme('light')">☀️ Light Theme</button>
+          <button class="radial-item" onclick="setTheme('dark')">🌙 Dark Theme</button>
+        </div>
+      </div>
+
+      <!-- Social Media -->
+      <div class="nav-icon-wrap social-wrap" id="socialWrap">
+        <button class="nav-icon-btn" id="socialBtn" title="Follow Us" aria-label="Social Media">📡</button>
+        <div class="radial-menu social-menu" id="socialMenu">
+          <a class="radial-item social-wa" href="https://wa.me/" target="_blank">💬 WhatsApp</a>
+          <a class="radial-item social-fb" href="https://facebook.com" target="_blank">f Facebook</a>
+          <a class="radial-item social-tw" href="https://x.com" target="_blank">𝕏 Twitter / X</a>
+          <a class="radial-item social-ig" href="https://instagram.com" target="_blank">📸 Instagram</a>
+          <a class="radial-item social-li" href="https://linkedin.com" target="_blank">in LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Google Translate hidden element -->
+  <div id="google_translate_element" style="display:none;"></div>
+
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">🇮🇳 1,200+ Active Government Schemes</div>
+      <h1 class="hero-title">Find Schemes<br><span>Made For You</span><br>Instantly</h1>
+      <p class="hero-sub">Register once. Get matched to every central & state government scheme you qualify for — based on your saved profile. No repeated form-filling ever again.</p>
+      <div class="hero-actions">
+        <a href="{{ url_for('register') }}" class="btn-hero-primary">✦ Create My Profile →</a>
+        <a href="{{ url_for('browse_schemes') }}" class="btn-hero-secondary">Browse All Schemes</a>
+      </div>
+      <div class="hero-trust">
+        <span>✅ Accurate information</span>
+        <span>✅ No Aadhaar required</span>
+        <span>✅ All 29 states covered</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-glow-orb"></div>
+      <div class="hero-particles">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="hero-badge-float badge-f1">🌾 Agriculture</div>
+      <div class="hero-badge-float badge-f2">🏥 Healthcare</div>
+      <div class="hero-badge-float badge-f3">📚 Education</div>
+      <div class="hero-badge-float badge-f4">🏠 Housing</div>
+    </div>
+  </section>
+
+  <section class="features-section" id="features">
+    <h2>Everything you need in one place</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="fc-icon">🔍</div>
+        <h3>Browse All Schemes</h3>
+        <p>Search and filter 1200+ central and state government schemes by category, state, and eligibility.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">🗺️</div>
+        <h3>State-wise Schemes</h3>
+        <p>Select your state and see all schemes specific to your region with categories like agriculture, healthcare, and more.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">⭐</div>
+        <h3>Save & Track</h3>
+        <p>Save schemes you're interested in and track your application status all in one personal dashboard.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">🔄</div>
+        <h3>Hourly Updates</h3>
+        <p>Our scraper fetches new schemes from official government portals every hour so you never miss anything.</p>
+      </div>
+      <div class="feature-card pro-feature">
+        <div class="fc-icon">✅</div>
+        <h3>Eligibility Check <span class="pro-chip">PRO</span></h3>
+        <p>Fill in your profile once. Our AI checks your eligibility across all schemes automatically.</p>
+      </div>
+      <div class="feature-card pro-feature">
+        <div class="fc-icon">🤖</div>
+        <h3>AI Assistant <span class="pro-chip">PRO</span></h3>
+        <p>Ask questions about any scheme and get instant answers powered by AI.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-it-works" id="how-it-works">
+    <div class="hiw-badge">⚡ SIMPLE PROCESS</div>
+    <h2>How <span class="orange">Government Scheme Hub</span> Works</h2>
+    <p class="hiw-sub">Three steps once — then your profile does all the work automatically.</p>
+    <div class="hiw-grid">
+      <div class="hiw-card">
+        <div class="hiw-step">01</div>
+        <div class="hiw-icon" style="background:#f97316;">👤</div>
+        <h3>Build Your Profile</h3>
+        <p>Enter age, state, occupation, income, category — just once. We store it securely.</p>
+      </div>
+      <div class="hiw-arrow">→</div>
+      <div class="hiw-card">
+        <div class="hiw-step">02</div>
+        <div class="hiw-icon" style="background:#3b82f6;">⚡</div>
+        <h3>Auto Smart Matching</h3>
+        <p>Our engine filters all 1200+ schemes against your eligibility — instantly, every time.</p>
+      </div>
+      <div class="hiw-arrow">→</div>
+      <div class="hiw-card">
+        <div class="hiw-step">03</div>
+        <div class="hiw-icon" style="background:#22c55e;">📋</div>
+        <h3>View Your Dashboard</h3>
+        <p>See personalized schemes ranked by match %. Get alerts when new ones match you.</p>
+      </div>
+      <div class="hiw-arrow">→</div>
+      <div class="hiw-card">
+        <div class="hiw-step">04</div>
+        <div class="hiw-icon" style="background:#a855f7;">✅</div>
+        <h3>Apply Directly</h3>
+        <p>Full scheme details, required documents, and direct official application link.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="categories-preview" id="features">
+    <h2>20+ Scheme Categories</h2>
+    <div class="cats-grid">
+      <div class="cat-card"><span class="cat-icon">🌾</span><span class="cat-label">Agriculture</span></div>
+      <div class="cat-card"><span class="cat-icon">👨‍🌾</span><span class="cat-label">Farmer Welfare</span></div>
+      <div class="cat-card"><span class="cat-icon">🏥</span><span class="cat-label">Healthcare</span></div>
+      <div class="cat-card"><span class="cat-icon">👩‍👧</span><span class="cat-label">Women &amp; Child</span></div>
+      <div class="cat-card"><span class="cat-icon">📚</span><span class="cat-label">Education</span></div>
+      <div class="cat-card"><span class="cat-icon">🏠</span><span class="cat-label">Housing</span></div>
+      <div class="cat-card"><span class="cat-icon">💼</span><span class="cat-label">Employment</span></div>
+      <div class="cat-card"><span class="cat-icon">💰</span><span class="cat-label">Finance &amp; Credit</span></div>
+      <div class="cat-card"><span class="cat-icon">🤝</span><span class="cat-label">Social Welfare</span></div>
+      <div class="cat-card"><span class="cat-icon">🎯</span><span class="cat-label">Skill Development</span></div>
+      <div class="cat-card"><span class="cat-icon">🏭</span><span class="cat-label">MSME / Business</span></div>
+      <div class="cat-card"><span class="cat-icon">🛡️</span><span class="cat-label">Pension &amp; Insurance</span></div>
+      <div class="cat-card"><span class="cat-icon">♿</span><span class="cat-label">Disability</span></div>
+      <div class="cat-card"><span class="cat-icon">🕌</span><span class="cat-label">Minority Welfare</span></div>
+      <div class="cat-card"><span class="cat-icon">💻</span><span class="cat-label">Digital India</span></div>
+      <div class="cat-card"><span class="cat-icon">🌱</span><span class="cat-label">Environment</span></div>
+      <div class="cat-card"><span class="cat-icon">🌿</span><span class="cat-label">Tribal Welfare</span></div>
+      <div class="cat-card"><span class="cat-icon">🚌</span><span class="cat-label">Transport</span></div>
+      <div class="cat-card"><span class="cat-icon">⚽</span><span class="cat-label">Sports &amp; Youth</span></div>
+      <div class="cat-card"><span class="cat-icon">📋</span><span class="cat-label">Other Schemes</span></div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2>Ready to discover your eligible schemes?</h2>
+    <p>Join thousands of Indians finding government benefits they deserve.</p>
+    <a href="{{ url_for('register') }}" class="btn-cta">Create Free Account →</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand-col">
+        <div class="footer-brand">
+          <span class="brand-in-badge">IN</span>
+          <span class="brand-gov">Government</span>
+          <span class="brand-hub">Scheme Hub</span>
+        </div>
+        <p class="footer-tagline">Your personalized gateway to 1200+ Central & State government schemes. Empowering every Indian citizen.</p>
+        <div class="footer-social-row">
+          <a href="https://wa.me/" target="_blank" class="fsoc-btn fsoc-wa" title="WhatsApp">💬</a>
+          <a href="https://facebook.com" target="_blank" class="fsoc-btn fsoc-fb" title="Facebook">f</a>
+          <a href="https://x.com" target="_blank" class="fsoc-btn fsoc-tw" title="X">𝕏</a>
+          <a href="https://instagram.com" target="_blank" class="fsoc-btn fsoc-ig" title="Instagram">📸</a>
+          <a href="https://linkedin.com" target="_blank" class="fsoc-btn fsoc-li" title="LinkedIn">in</a>
+        </div>
+      </div>
+      <div class="footer-links-col">
+        <h4>Schemes</h4>
+        <a href="#">Central Schemes</a>
+        <a href="#">State Schemes</a>
+        <a href="#">By Category</a>
+        <a href="#">New Schemes</a>
+      </div>
+      <div class="footer-links-col">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">How It Works</a>
+        <a href="#">Features</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-links-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Disclaimer</a>
+        <a href="#">Data Sources</a>
+      </div>
+      <div class="footer-links-col">
+        <h4>Account</h4>
+        <a href="{{ url_for('login') }}">Sign In</a>
+        <a href="{{ url_for('register') }}">Register Free</a>
+        <a href="#">Dashboard</a>
+        <a href="#">Saved Schemes</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>Government Scheme Hub — Not affiliated with any government. Data sourced from official portals.</div>
+      <div>© 2026 Government Scheme Hub. All rights reserved.</div>
+    </div>
+  </footer>
+</div>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    includedLanguages: 'hi,te,ta,bn,mr,gu,kn,ml,pa,ur,or,en',
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+    autoDisplay: false
+  }, 'google_translate_element');
+}
+
+function translatePage(lang) {
+  function doTranslate() {
+    var select = document.querySelector('.goog-te-combo');
+    if (select) {
+      select.value = lang;
+      select.dispatchEvent(new Event('change'));
+      // Also try firing it via the Google Translate internal method
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('change', true, true);
+      select.dispatchEvent(event);
+      closeAllMenus();
+    }
+  }
+
+  var select = document.querySelector('.goog-te-combo');
+  if (select) {
+    doTranslate();
+  } else {
+    // Google Translate not loaded yet, load it and retry
+    if (!window._gtLoading) {
+      window._gtLoading = true;
+      var script = document.createElement('script');
+      script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      document.head.appendChild(script);
+    }
+    // Retry with polling
+    var attempts = 0;
+    var interval = setInterval(function() {
+      attempts++;
+      var sel = document.querySelector('.goog-te-combo');
+      if (sel) {
+        clearInterval(interval);
+        sel.value = lang;
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('change', true, true);
+        sel.dispatchEvent(event);
+        closeAllMenus();
+      }
+      if (attempts > 20) clearInterval(interval);
+    }, 500);
+  }
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<script>
+function closeAllMenus() {
+  document.querySelectorAll('.radial-menu').forEach(function(m){ m.classList.remove('open'); });
+  document.querySelectorAll('.nav-icon-btn').forEach(function(b){ b.classList.remove('active'); });
+}
+
+['socialWrap','accessWrap','translatorWrap'].forEach(function(id) {
+  var wrap = document.getElementById(id);
+  if (!wrap) return;
+  var btn  = wrap.querySelector('.nav-icon-btn');
+  var menu = wrap.querySelector('.radial-menu');
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var isOpen = menu.classList.contains('open');
+    closeAllMenus();
+    if (!isOpen) { menu.classList.add('open'); btn.classList.add('active'); }
+  });
+  // Keep menu open when hovering inside the dropdown itself
+  menu.addEventListener('click', function(e) { e.stopPropagation(); });
+});
+document.addEventListener('click', closeAllMenus);
+
+function setFontSize(size) {
+  document.body.classList.remove('font-small','font-medium','font-large');
+  document.body.classList.add('font-' + size);
+  localStorage.setItem('fontSize', size);
+  closeAllMenus();
+}
+function setTheme(theme) {
+  document.body.classList.remove('theme-light','theme-dark');
+  document.body.classList.add('theme-' + theme);
+  localStorage.setItem('theme', theme);
+  closeAllMenus();
+}
+(function(){
+  var fs = localStorage.getItem('fontSize');
+  var th = localStorage.getItem('theme');
+  if (fs) document.body.classList.add('font-' + fs);
+  if (th) document.body.classList.add('theme-' + th);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+{% block title %}{{ scheme.title }} — Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="detail-page">
+  <div class="detail-back"><a href="{{ url_for('browse_schemes') }}">← Back to Schemes</a></div>
+
+  <div class="detail-grid">
+    <div class="detail-main">
+      <div class="detail-header">
+        <div class="detail-badges">
+          <span class="level-badge {% if scheme.level == 'central' %}central{% else %}state{% endif %}">
+            {{ 'CENTRAL GOVERNMENT' if scheme.level == 'central' else scheme.state + ' STATE' }}
+          </span>
+          <span class="cat-chip">{{ scheme.category|title }}</span>
+        </div>
+        <h1 class="detail-title">{{ scheme.title }}</h1>
+        {% if scheme.ministry %}
+        <div class="detail-ministry">🏛️ {{ scheme.ministry }}</div>
+        {% endif %}
+      </div>
+
+      {% if scheme.description %}
+      <div class="detail-section">
+        <h2>About This Scheme</h2>
+        <p>{{ scheme.description }}</p>
+      </div>
+      {% endif %}
+
+      {% if scheme.benefits %}
+      <div class="detail-section">
+        <h2>💡 Benefits</h2>
+        <div class="benefit-box">{{ scheme.benefits }}</div>
+      </div>
+      {% endif %}
+
+      {% if scheme.eligibility %}
+      <div class="detail-section">
+        <h2>✅ Eligibility Criteria</h2>
+        <p>{{ scheme.eligibility }}</p>
+      </div>
+      {% endif %}
+
+      {% if scheme.beneficiary %}
+      <div class="detail-section">
+        <h2>👥 Target Beneficiaries</h2>
+        <p>{{ scheme.beneficiary }}</p>
+      </div>
+      {% endif %}
+
+      <div class="detail-section">
+        <h2>📅 Last Updated</h2>
+        <p>{{ scheme.scraped_at.strftime('%d %B %Y') if scheme.scraped_at else 'N/A' }}</p>
+      </div>
+    </div>
+
+    <div class="detail-side">
+      <div class="detail-action-card">
+        {% if is_applied %}
+          <div class="already-applied">✅ You have applied for this scheme</div>
+          <a href="{{ url_for('application_status', scheme_id=scheme._id|string) }}" class="btn-status">Check Status →</a>
+        {% else %}
+          {% if scheme.apply_mode == 'online' %}
+            <a href="{{ scheme.application_url or '#' }}" target="_blank" class="btn-apply-big">🌐 Apply Online →</a>
+          {% elif scheme.apply_mode == 'meeseva' %}
+            <div class="meeseva-box">
+              <div class="meeseva-title">🏪 Apply via MEESEVA / CSC</div>
+              <div class="meeseva-steps">
+                <div class="ms-step"><span>1</span> Visit nearest MEESEVA / Common Service Centre</div>
+                <div class="ms-step"><span>2</span> Carry: Aadhaar Card, Ration Card, Bank Passbook</div>
+                <div class="ms-step"><span>3</span> Ask for <strong>"{{ scheme.title }}"</strong> application</div>
+                <div class="ms-step"><span>4</span> Operator submits online — collect acknowledgement slip</div>
+                <div class="ms-step"><span>5</span> Track status with slip number or Aadhaar</div>
+              </div>
+              {% if scheme.application_url %}
+              <a href="{{ scheme.application_url }}" target="_blank" class="btn-official" style="margin-top:.8rem;">Official Website ↗</a>
+              {% endif %}
+            </div>
+          {% else %}
+            <a href="{{ url_for('apply_scheme', scheme_id=scheme._id) }}" class="btn-apply-big">Apply for this Scheme</a>
+          {% endif %}
+        {% endif %}
+
+        <button class="btn-save-big {% if is_saved %}saved{% endif %}" data-id="{{ scheme._id }}" onclick="toggleSaveDetail(this)">
+          {% if is_saved %}★ Saved{% else %}☆ Save Scheme{% endif %}
+        </button>
+
+        {% if scheme.apply_mode != 'meeseva' and scheme.application_url %}
+        <a href="{{ scheme.application_url }}" target="_blank" class="btn-official">Visit Official Website ↗</a>
+        {% endif %}
+      </div>
+
+      <div class="detail-info-card">
+        <div class="dic-item">
+          <span class="dic-label">Type</span>
+          <span class="dic-value">{{ scheme.level|title }} Government</span>
+        </div>
+        {% if scheme.state %}
+        <div class="dic-item">
+          <span class="dic-label">State</span>
+          <span class="dic-value">{{ scheme.state }}</span>
+        </div>
+        {% endif %}
+        <div class="dic-item">
+          <span class="dic-label">Category</span>
+          <span class="dic-value">{{ scheme.category|title }}</span>
+        </div>
+        {% if scheme.ministry %}
+        <div class="dic-item">
+          <span class="dic-label">Ministry</span>
+          <span class="dic-value">{{ scheme.ministry }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+<style>
+.meeseva-box { background:rgba(168,85,247,.08); border:1px solid rgba(168,85,247,.3); border-radius:10px; padding:1rem; margin-bottom:.8rem; }
+.meeseva-title { color:#c084fc; font-weight:700; font-size:.95rem; margin-bottom:.8rem; }
+.meeseva-steps { display:flex; flex-direction:column; gap:.5rem; }
+.ms-step { display:flex; gap:.6rem; align-items:flex-start; font-size:.82rem; color:#cbd5e1; }
+.ms-step span { background:#a855f7; color:#fff; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.65rem; font-weight:800; flex-shrink:0; margin-top:1px; }
+.ms-step strong { color:#fff; }
+</style>

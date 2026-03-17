@@ -1,0 +1,146 @@
+{% extends "layout.html" %}
+{% block title %}My Profile — Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="profile-page">
+  <div class="page-header">
+    <h1>👤 My Profile</h1>
+    <p>Fill in your details to get accurate scheme matches and eligibility checks.</p>
+  </div>
+
+  {% set profile = user.get('profile', {}) %}
+  {% set profile_fields = ['name','age','gender','state','occupation','income','category'] %}
+  {% set filled = namespace(count=0) %}
+  {% for f in profile_fields %}{% if profile.get(f) %}{% set filled.count = filled.count + 1 %}{% endif %}{% endfor %}
+  {% set pct = ((filled.count / profile_fields|length) * 100)|int %}
+
+  <div class="profile-completion-bar">
+    <span class="pcb-label">Profile Completion</span>
+    <div class="pcb-bar"><div class="pcb-fill" style="width:{{ pct }}%"></div></div>
+    <span class="pcb-pct">{{ pct }}%</span>
+  </div>
+
+  <div class="profile-form-card">
+    <h2>Personal Details</h2>
+    <p>This information is used to match you with eligible government schemes.</p>
+
+    <form method="POST" class="auth-form">
+      <div class="form-grid">
+        <div class="form-section-label">Basic Information</div>
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" name="name" value="{{ profile.get('name','') }}" placeholder="Your full name">
+        </div>
+        <div class="form-group">
+          <label>Age</label>
+          <input type="number" name="age" value="{{ profile.get('age','') }}" placeholder="Your age" min="1" max="120">
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <select name="gender">
+            <option value="">Select Gender</option>
+            <option value="male" {% if profile and profile['gender'] == 'male' %}selected{% endif %}>Male</option>
+            <option value="female" {% if profile.get['gender']=='female' %}selected{% endif %}>Female</option>
+            <option value="other" {% if profile.get['gender']=='other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Education</label>
+          <select name="education">
+            <option value="">Select Education</option>
+            <option value="none" {% if profile.get('education')=='none' %}selected{% endif %}>No Formal Education</option>
+            <option value="primary" {% if profile.get('education')=='primary' %}selected{% endif %}>Primary School</option>
+            <option value="secondary" {% if profile.get('education')=='secondary' %}selected{% endif %}>Secondary School (10th)</option>
+            <option value="higher_secondary" {% if profile.get('education')=='higher_secondary' %}selected{% endif %}>Higher Secondary (12th)</option>
+            <option value="graduate" {% if profile.get('education')=='graduate' %}selected{% endif %}>Graduate</option>
+            <option value="postgraduate" {% if profile.get('education')=='postgraduate' %}selected{% endif %}>Post Graduate</option>
+          </select>
+        </div>
+
+        <div class="form-section-label">Location</div>
+
+        <div class="form-group">
+          <label>State</label>
+          <select name="state">
+            <option value="">Select State</option>
+            {% for state in states %}
+            <option value="{{ state }}" {% if profile.get('state')==state %}selected{% endif %}>{{ state }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>District</label>
+          <input type="text" name="district" value="{{ profile.get('district','') }}" placeholder="Your district">
+        </div>
+
+        <div class="form-section-label">Occupation & Income</div>
+
+        <div class="form-group">
+          <label>Occupation</label>
+          <select name="occupation">
+            <option value="">Select Occupation</option>
+            <option value="farmer" {% if profile.get('occupation')=='farmer' %}selected{% endif %}>Farmer</option>
+            <option value="agriculture_labour" {% if profile.get('occupation')=='agriculture_labour' %}selected{% endif %}>Agricultural Labourer</option>
+            <option value="student" {% if profile.get('occupation')=='student' %}selected{% endif %}>Student</option>
+            <option value="self_employed" {% if profile.get('occupation')=='self_employed' %}selected{% endif %}>Self-Employed / Business</option>
+            <option value="private_employee" {% if profile.get('occupation')=='private_employee' %}selected{% endif %}>Private Sector Employee</option>
+            <option value="government_employee" {% if profile.get('occupation')=='government_employee' %}selected{% endif %}>Government Employee</option>
+            <option value="unemployed" {% if profile.get('occupation')=='unemployed' %}selected{% endif %}>Unemployed</option>
+            <option value="homemaker" {% if profile.get('occupation')=='homemaker' %}selected{% endif %}>Homemaker</option>
+            <option value="retired" {% if profile.get('occupation')=='retired' %}selected{% endif %}>Retired</option>
+            <option value="other" {% if profile.get('occupation')=='other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Annual Family Income</label>
+          <select name="income">
+            <option value="">Select Income Range</option>
+            <option value="below_50000" {% if profile.get('income')=='below_50000' %}selected{% endif %}>Below ₹50,000</option>
+            <option value="50000_1lakh" {% if profile.get('income')=='50000_1lakh' %}selected{% endif %}>₹50,000 – ₹1 Lakh</option>
+            <option value="1lakh_2lakh" {% if profile.get('income')=='1lakh_2lakh' %}selected{% endif %}>₹1 Lakh – ₹2 Lakh</option>
+            <option value="2lakh_5lakh" {% if profile.get('income')=='2lakh_5lakh' %}selected{% endif %}>₹2 Lakh – ₹5 Lakh</option>
+            <option value="above_5lakh" {% if profile.get('income')=='above_5lakh' %}selected{% endif %}>Above ₹5 Lakh</option>
+          </select>
+        </div>
+
+        <div class="form-section-label">Category & Special Status</div>
+
+        <div class="form-group">
+          <label>Social Category</label>
+          <select name="category">
+            <option value="">Select Category</option>
+            <option value="general" {% if profile.get('category')=='general' %}selected{% endif %}>General</option>
+            <option value="obc" {% if profile.get('category')=='obc' %}selected{% endif %}>OBC (Other Backward Class)</option>
+            <option value="sc" {% if profile.get('category')=='sc' %}selected{% endif %}>SC (Scheduled Caste)</option>
+            <option value="st" {% if profile.get('category')=='st' %}selected{% endif %}>ST (Scheduled Tribe)</option>
+            <option value="ews" {% if profile.get('category')=='ews' %}selected{% endif %}>EWS (Economically Weaker Section)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>BPL Card Holder</label>
+          <select name="bpl">
+            <option value="no" {% if profile.get('bpl','no')=='no' %}selected{% endif %}>No</option>
+            <option value="yes" {% if profile.get('bpl')=='yes' %}selected{% endif %}>Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Differently Abled</label>
+          <select name="differently_abled">
+            <option value="no" {% if profile.get('differently_abled','no')=='no' %}selected{% endif %}>No</option>
+            <option value="yes" {% if profile.get('differently_abled')=='yes' %}selected{% endif %}>Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Minority Community</label>
+          <select name="minority">
+            <option value="no" {% if profile.get('minority','no')=='no' %}selected{% endif %}>No</option>
+            <option value="yes" {% if profile.get('minority')=='yes' %}selected{% endif %}>Yes</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-save-profile">Save Profile →</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

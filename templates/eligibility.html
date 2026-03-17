@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+{% block title %}Eligibility Check — Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="browse-page">
+  <div class="browse-header">
+    <h1>🔍 Your Eligibility Results</h1>
+    <p>
+      Found <strong style="color:var(--orange)">{{ total_matched }}</strong> schemes matching your profile
+      {% if profile.state %} in <strong>{{ profile.state }}</strong>{% endif %}
+      {% if profile.occupation %} for <strong>{{ profile.occupation }}</strong>{% endif %}
+    </p>
+  </div>
+
+  <!-- Profile Summary Bar -->
+  <div class="elig-profile-bar">
+    <span class="epb-label">Matching based on:</span>
+    {% if profile.gender %}<span class="epb-tag">{{ profile.gender|title }}</span>{% endif %}
+    {% if profile.occupation %}<span class="epb-tag">{{ profile.occupation|replace('_',' ')|title }}</span>{% endif %}
+    {% if profile.income %}<span class="epb-tag">{{ profile.income|replace('_',' ')|replace('lakh','L') }}</span>{% endif %}
+    {% if profile.bpl == 'yes' %}<span class="epb-tag epb-highlight">BPL</span>{% endif %}
+    {% if profile.category %}<span class="epb-tag epb-highlight">{{ profile.category|upper }}</span>{% endif %}
+    {% if profile.differently_abled == 'yes' %}<span class="epb-tag">Divyangjan</span>{% endif %}
+    {% if profile.minority == 'yes' %}<span class="epb-tag">Minority</span>{% endif %}
+    <a href="{{ url_for('profile') }}" class="epb-edit">✏️ Edit Profile</a>
+  </div>
+
+  {% if schemes %}
+  <div class="results-grid">
+    {% for scheme in schemes %}
+    <div class="result-card">
+      <div class="rc-top">
+        <div class="rc-badges">
+          <span class="level-badge {% if scheme.level == 'central' %}central{% else %}state{% endif %}">
+            {{ 'CENTRAL' if scheme.level == 'central' else scheme.state }}
+          </span>
+          <span class="cat-chip">{{ scheme.category|title }}</span>
+        </div>
+        <button class="save-btn-sm" data-id="{{ scheme._id }}" onclick="toggleSave(this)" title="Save">☆</button>
+      </div>
+      <h3 class="rc-title">{{ scheme.title }}</h3>
+      <p class="rc-desc">{{ scheme.description[:150] if scheme.description else '' }}{% if scheme.description and scheme.description|length > 150 %}...{% endif %}</p>
+      {% if scheme.benefits %}
+      <div class="rc-benefit">💡 {{ scheme.benefits[:100] }}</div>
+      {% endif %}
+      {% if scheme.eligibility %}
+      <div class="rc-eligibility">✅ {{ scheme.eligibility[:120] }}{% if scheme.eligibility|length > 120 %}...{% endif %}</div>
+      {% endif %}
+      <div class="rc-footer">
+        <a href="{{ url_for('scheme_detail', scheme_id=scheme._id) }}" class="rc-details">View Details →</a>
+        <a href="{{ url_for('apply_scheme', scheme_id=scheme._id) }}" class="rc-apply">Apply</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-results">
+    <div class="er-icon">🔍</div>
+    <h3>No schemes found for your profile</h3>
+    <p>Try completing more profile fields for better matches.</p>
+    <a href="{{ url_for('profile') }}" class="btn-primary">Update Profile →</a>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.elig-profile-bar {
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .85rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.epb-label { color: var(--text3); font-size: .8rem; font-weight: 600; }
+.epb-tag {
+  background: var(--bg3); color: var(--text2);
+  padding: .25rem .7rem; border-radius: 999px; font-size: .78rem;
+  border: 1px solid var(--border);
+}
+.epb-highlight { background: var(--orange-glow); color: var(--orange); border-color: var(--orange); }
+.epb-edit { margin-left: auto; color: var(--orange); font-size: .8rem; font-weight: 600; }
+.rc-eligibility {
+  font-size: .78rem; color: #4ade80; background: rgba(34,197,94,0.08);
+  border-radius: 6px; padding: .4rem .7rem; line-height: 1.4;
+}
+</style>
+{% endblock %}

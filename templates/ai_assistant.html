@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}AI Assistant – Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="ai-page">
+  <div class="ai-header">
+    <div class="ai-avatar">🤖</div>
+    <div>
+      <h1>AI Scheme Assistant</h1>
+      <p>Ask me anything about government schemes — eligibility, benefits, how to apply</p>
+    </div>
+  </div>
+
+  <div class="chat-container" id="chatContainer">
+    <!-- Welcome message -->
+    <div class="chat-message assistant">
+      <div class="msg-avatar">🤖</div>
+      <div class="msg-bubble">
+        <p>Namaste! 🙏 I'm your Government Scheme Assistant.</p>
+        <p>You can ask me things like:</p>
+        <div class="suggestions">
+          <button onclick="sendSuggestion(this)">Which schemes am I eligible for?</button>
+          <button onclick="sendSuggestion(this)">Tell me about PM Kisan Yojana</button>
+          <button onclick="sendSuggestion(this)">Farmer ke liye koi scheme hai?</button>
+          <button onclick="sendSuggestion(this)">Housing schemes for BPL families</button>
+        </div>
+      </div>
+    </div>
+
+    {% for msg in chat_history %}
+    <div class="chat-message user">
+      <div class="msg-bubble">{{ msg.user }}</div>
+      <div class="msg-avatar">👤</div>
+    </div>
+    <div class="chat-message assistant">
+      <div class="msg-avatar">🤖</div>
+      <div class="msg-bubble">{{ msg.assistant | replace('\n', '<br>') | safe }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="chat-input-area">
+    <div class="chat-input-box">
+      <textarea id="userInput" placeholder="Ask about any government scheme..." rows="1"
+                onkeydown="handleEnter(event)" oninput="autoResize(this)"></textarea>
+      <button id="sendBtn" onclick="sendMessage()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <p class="input-note">AI responses are for guidance only. Always verify on official government websites.</p>
+  </div>
+</div>
+
+<script>
+let isTyping = false;
+
+function handleEnter(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function sendSuggestion(btn) {
+  document.getElementById('userInput').value = btn.textContent;
+  sendMessage();
+}
+
+async function sendMessage() {
+  if (isTyping) return;
+  const input = document.getElementById('userInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  isTyping = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  appendMessage('user', msg);
+  showTyping();
+
+  try {
+    const res = await fetch('/api/ai-chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: msg})
+    });
+    const data = await res.json();
+    removeTyping();
+    appendMessage('assistant', data.response || data.error || 'Sorry, something went wrong.');
+  } catch(e) {
+    removeTyping();
+    appendMessage('assistant', 'Network error. Please try again.');
+  }
+
+  isTyping = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function appendMessage(role, text) {
+  const container = document.getElementById('chatContainer');
+  const div = document.createElement('div');
+  div.className = `chat-message ${role}`;
+
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+
+  if (role === 'user') {
+    div.innerHTML = `<div class="msg-bubble">${formatted}</div><div class="msg-avatar">👤</div>`;
+  } else {
+    div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble">${formatted}</div>`;
+  }
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('chatContainer');
+  const div = document.createElement('div');
+  div.className = 'chat-message assistant typing-indicator';
+  div.id = 'typingIndicator';
+  div.innerHTML = `<div class="msg-avatar">🤖</div>
+    <div class="msg-bubble"><span></span><span></span><span></span></div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+</script>
+
+<style>
+.ai-page { max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem; display: flex; flex-direction: column; height: calc(100vh - 120px); }
+.ai-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.ai-avatar { width: 52px; height: 52px; background: linear-gradient(135deg, #f97316, #ea580c); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+.ai-header h1 { font-size: 1.4rem; color: white; margin: 0; }
+.ai-header p { color: #94a3b8; font-size: .85rem; margin: .2rem 0 0; }
+.chat-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-right: .5rem; margin-bottom: 1rem; }
+.chat-message { display: flex; gap: .8rem; align-items: flex-end; }
+.chat-message.user { flex-direction: row-reverse; }
+.msg-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.msg-bubble { max-width: 75%; padding: .9rem 1.1rem; border-radius: 1rem; font-size: .9rem; line-height: 1.5; color: #e2e8f0; }
+.chat-message.assistant .msg-bubble { background: #1e293b; border-radius: 0 1rem 1rem 1rem; }
+.chat-message.user .msg-bubble { background: linear-gradient(135deg, #f97316, #ea580c); color: white; border-radius: 1rem 0 1rem 1rem; }
+.suggestions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+.suggestions button { background: #0f172a; border: 1px solid #334155; color: #94a3b8; padding: .4rem .8rem; border-radius: .5rem; font-size: .8rem; cursor: pointer; transition: all .2s; }
+.suggestions button:hover { border-color: #f97316; color: #f97316; }
+.typing-indicator .msg-bubble { background: #1e293b; display: flex; align-items: center; gap: .3rem; padding: .9rem 1.1rem; }
+.typing-indicator span { width: 7px; height: 7px; background: #64748b; border-radius: 50%; animation: bounce .8s infinite; }
+.typing-indicator span:nth-child(2) { animation-delay: .15s; }
+.typing-indicator span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+.chat-input-area { }
+.chat-input-box { display: flex; gap: .7rem; align-items: flex-end; background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: .6rem .6rem .6rem 1rem; }
+.chat-input-box textarea { flex: 1; background: transparent; border: none; outline: none; color: #e2e8f0; font-size: .95rem; resize: none; line-height: 1.5; max-height: 120px; }
+.chat-input-box textarea::placeholder { color: #475569; }
+#sendBtn { width: 40px; height: 40px; background: #f97316; border: none; border-radius: .6rem; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; }
+#sendBtn:hover { background: #ea580c; }
+#sendBtn:disabled { background: #475569; cursor: not-allowed; }
+.input-note { font-size: .75rem; color: #475569; text-align: center; margin-top: .6rem; }
+</style>
+{% endblock %}

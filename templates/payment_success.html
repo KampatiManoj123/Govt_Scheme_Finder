@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Welcome to Pro! – Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="success-page">
+  <div class="success-card">
+    <div class="success-animation">🎉</div>
+    <h1>Welcome to Pro!</h1>
+    <p>Your Pro membership is now active. You have full access to all premium features.</p>
+
+    <div class="features-unlocked">
+      <h3>✨ Features Unlocked</h3>
+      <div class="unlocked-grid">
+        <a href="/eligibility-check" class="unlocked-item">
+          <span>🔍</span>
+          <strong>Eligibility Check</strong>
+          <span>AI-powered scheme matching</span>
+        </a>
+        <a href="/ai-assistant" class="unlocked-item">
+          <span>🤖</span>
+          <strong>AI Assistant</strong>
+          <span>Ask anything about schemes</span>
+        </a>
+        <a href="/document-vault" class="unlocked-item">
+          <span>📁</span>
+          <strong>Document Vault</strong>
+          <span>Store your documents securely</span>
+        </a>
+        <a href="/progress-tracker" class="unlocked-item">
+          <span>📊</span>
+          <strong>Progress Tracker</strong>
+          <span>Track all your applications</span>
+        </a>
+      </div>
+    </div>
+
+    <a href="/dashboard" class="go-dashboard-btn">Go to Dashboard →</a>
+  </div>
+</div>
+
+<style>
+.success-page { display: flex; align-items: center; justify-content: center; min-height: 70vh; padding: 2rem; }
+.success-card { background: #1e293b; border: 2px solid #22c55e; border-radius: 1.5rem; padding: 2.5rem; text-align: center; max-width: 600px; width: 100%; }
+.success-animation { font-size: 4rem; animation: bounce .8s ease; }
+@keyframes bounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+.success-card h1 { font-size: 2rem; color: white; margin: .8rem 0 .5rem; }
+.success-card > p { color: #94a3b8; margin-bottom: 2rem; }
+.features-unlocked h3 { color: #22c55e; font-size: 1rem; margin-bottom: 1rem; }
+.unlocked-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; margin-bottom: 2rem; }
+.unlocked-item { background: #0f172a; border: 1px solid #22c55e30; border-radius: .8rem; padding: 1rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: .3rem; transition: border-color .2s; }
+.unlocked-item:hover { border-color: #22c55e; }
+.unlocked-item > span:first-child { font-size: 1.8rem; }
+.unlocked-item strong { color: white; font-size: .9rem; }
+.unlocked-item span { color: #64748b; font-size: .78rem; }
+.go-dashboard-btn { display: inline-block; background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: .9rem 2rem; border-radius: .8rem; text-decoration: none; font-weight: 700; font-size: 1rem; }
+</style>
+{% endblock %}

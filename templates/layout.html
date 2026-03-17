@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard — Government Scheme Hub{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="app-body">
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()">×</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon brand-in-badge" style="width:auto;height:auto;background:var(--orange);color:#fff;font-size:0.7rem;font-weight:800;padding:4px 8px;border-radius:5px;font-family:var(--font-head);">IN</div>
+      <div class="brand-text">
+        <span class="brand-gov">Government</span>
+        <span class="brand-hub">Scheme Hub</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">OVERVIEW</div>
+      <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <span class="nav-icon">⊞</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="{{ url_for('saved_schemes') }}" class="nav-item {% if request.endpoint == 'saved_schemes' %}active{% endif %}">
+        <span class="nav-icon">★</span>
+        <span>Saved Schemes</span>
+        
+      </a>
+      <a href="{{ url_for('my_applications') }}" class="nav-item {% if request.endpoint == 'my_applications' %}active{% endif %}">
+        <span class="nav-icon">📋</span>
+        <span>My Applications</span>
+      </a>
+      <a href="{{ url_for('my_applications') }}" class="nav-item {% if request.endpoint in ['my_applications', 'application_status'] %}active{% endif %}">
+        <span class="nav-icon">📍</span>
+        <span>Application Status</span>
+      </a>
+
+      <div class="nav-section-label" style="margin-top:1.5rem">SCHEMES</div>
+      <a href="{{ url_for('browse_schemes') }}" class="nav-item {% if request.endpoint == 'browse_schemes' %}active{% endif %}">
+        <span class="nav-icon">🔍</span>
+        <span>Browse All</span>
+        <span class="nav-tag free">FREE</span>
+      </a>
+      <a href="{{ url_for('eligibility_check') }}" class="nav-item {% if request.endpoint == 'eligibility_check' %}active{% endif %}">
+        <span class="nav-icon">✅</span>
+        <span>Eligibility Check</span>
+        <span class="nav-tag pro">PRO</span>
+      </a>
+      <a href="{{ url_for('ai_assistant') }}" class="nav-item {% if request.endpoint == 'ai_assistant' %}active{% endif %}">
+        <span class="nav-icon">🤖</span>
+        <span>AI Assistant</span>
+        <span class="nav-tag pro">PRO</span>
+      </a>
+      <a href="{{ url_for('document_vault') }}" class="nav-item {% if request.endpoint == 'document_vault' %}active{% endif %}">
+        <span class="nav-icon">📁</span>
+        <span>Document Vault</span>
+        <span class="nav-tag pro">PRO</span>
+      </a>
+      <a href="{{ url_for('progress_tracker') }}" class="nav-item {% if request.endpoint == 'progress_tracker' %}active{% endif %}">
+        <span class="nav-icon">📊</span>
+        <span>Progress Tracker</span>
+        <span class="nav-tag pro">PRO</span>
+      </a>
+
+      <div class="nav-section-label" style="margin-top:1.5rem">FILTER BY CATEGORY</div>
+      <a href="{{ url_for('browse_schemes') }}" class="nav-item nav-cat {% if not request.args.get('category') %}active{% endif %}">
+        <span class="cat-dot" style="background:#f97316"></span>
+        <span>All Schemes</span>
+        <span class="nav-count">1200+</span>
+      </a>
+      <a href="{{ url_for('browse_schemes', category='agriculture') }}" class="nav-item nav-cat">
+        <span class="cat-dot" style="background:#22c55e"></span>
+        <span>Agriculture</span>
+      </a>
+      <a href="{{ url_for('browse_schemes', category='education') }}" class="nav-item nav-cat">
+        <span class="cat-dot" style="background:#3b82f6"></span>
+        <span>Education</span>
+      </a>
+      <a href="{{ url_for('browse_schemes', category='healthcare') }}" class="nav-item nav-cat">
+        <span class="cat-dot" style="background:#ef4444"></span>
+        <span>Healthcare</span>
+      </a>
+      <a href="{{ url_for('browse_schemes', category='housing') }}" class="nav-item nav-cat">
+        <span class="cat-dot" style="background:#a855f7"></span>
+        <span>Housing</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Area -->
+  <div class="main-wrap">
+    <!-- Top Nav -->
+    <header class="topbar">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+      <nav class="topbar-links">
+        <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Home</a>
+        <a href="{{ url_for('browse_schemes') }}" class="{% if request.endpoint == 'browse_schemes' %}active{% endif %}">Browse Schemes</a>
+        <a href="{{ url_for('browse_schemes', level='central') }}">Categories</a>
+        <a href="#">How It Works</a>
+      </nav>
+      <div class="topbar-actions">
+        <button class="topbar-bell">🔔</button>
+        <div class="topbar-user" onclick="toggleUserMenu()">
+          <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+          <span>{{ current_user.username }}</span>
+          <span>▾</span>
+          <div class="user-dropdown" id="userDropdown">
+            <a href="{{ url_for('profile') }}">👤 My Profile</a>
+            <a href="{{ url_for('saved_schemes') }}">★ Saved Schemes</a>
+            <a href="{{ url_for('my_applications') }}">📋 Applications</a>
+            {% if not current_user.is_pro %}
+            <a href="{{ url_for('upgrade') }}" class="upgrade-link">⚡ Upgrade to Pro</a>
+            {% endif %}
+            <hr>
+            <a href="{{ url_for('logout') }}">🚪 Logout</a>
+          </div>
+        </div>
+        {% if not current_user.is_pro %}
+        <a href="{{ url_for('upgrade') }}" class="btn-upgrade">⚡ Upgrade to Pro</a>
+        {% else %}
+        <span class="pro-badge">⚡ PRO</span>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

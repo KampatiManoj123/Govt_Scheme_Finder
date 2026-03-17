@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block title %}My Applications — Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="apps-page">
+  <div class="page-header">
+    <h1>📋 My Applications</h1>
+    <p>Track all your scheme applications</p>
+  </div>
+
+  {% if applications %}
+  <div class="apps-table-wrap">
+    <table class="apps-table">
+      <thead>
+        <tr>
+          <th>Scheme Name</th>
+          <th>Category</th>
+          <th>Type</th>
+          <th>Applied On</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in applications %}
+        <tr>
+          <td class="app-scheme-name">{{ app.scheme_title }}</td>
+          <td><span class="cat-chip-sm">{{ app.scheme_category|title }}</span></td>
+          <td>
+            <span class="level-badge-sm {% if app.scheme_level == 'central' %}central{% else %}state{% endif %}">
+              {{ 'Central' if app.scheme_level == 'central' else app.get('scheme_state', 'State') }}
+            </span>
+          </td>
+          <td>{{ app.applied_at.strftime('%d %b %Y') if app.applied_at else 'N/A' }}</td>
+          <td><span class="status-badge {{ app.status }}">{{ app.status|title }}</span></td>
+          <td>
+            <a href="{{ url_for('application_status', scheme_id=app.scheme_id) }}" class="btn-track">Track →</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-page">
+    <div class="ep-icon">📋</div>
+    <h2>No Applications Yet</h2>
+    <p>Browse schemes and apply for the ones you're eligible for.</p>
+    <a href="{{ url_for('browse_schemes') }}" class="btn-primary">Browse Schemes →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block title %}Application Status — Government Scheme Hub{% endblock %}
+{% block content %}
+<div class="status-page">
+  <div class="detail-back"><a href="{{ url_for('my_applications') }}">← My Applications</a></div>
+  <div class="status-card">
+    <h1>{{ application.scheme_title }}</h1>
+    <div class="status-meta">
+      <span class="level-badge {% if application.scheme_level == 'central' %}central{% else %}state{% endif %}">
+        {{ 'Central Govt' if application.scheme_level == 'central' else application.get('scheme_state','State') }}
+      </span>
+      <span class="cat-chip">{{ application.scheme_category|title }}</span>
+    </div>
+
+    <div class="status-current">
+      <div class="sc-label">Current Status</div>
+      <div class="sc-value {{ application.status }}">{{ application.status|upper }}</div>
+    </div>
+
+    <!-- Status Timeline -->
+    <div class="status-timeline">
+      <h2>Application Timeline</h2>
+      {% set statuses = ['pending', 'under_review', 'approved', 'disbursed'] %}
+      {% set current_idx = statuses.index(application.status) if application.status in statuses else 0 %}
+      <div class="timeline">
+        {% for status in statuses %}
+        <div class="tl-step {% if loop.index0 <= current_idx %}done{% endif %} {% if loop.index0 == current_idx %}current{% endif %}">
+          <div class="tl-dot"></div>
+          <div class="tl-label">{{ status.replace('_',' ')|title }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- History -->
+    {% if application.status_history %}
+    <div class="status-history">
+      <h2>Activity Log</h2>
+      {% for event in application.status_history %}
+      <div class="sh-item">
+        <div class="shi-status {{ event.status }}">{{ event.status|title }}</div>
+        <div class="shi-note">{{ event.note }}</div>
+        <div class="shi-date">{{ event.date[:10] if event.date else '' }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
