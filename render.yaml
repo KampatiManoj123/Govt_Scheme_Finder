@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: govt-scheme-hub
+    name: Govt Scheme Finder
     env: python
     region: singapore
     plan: free
@@ -18,4 +18,4 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: 3.11.9
