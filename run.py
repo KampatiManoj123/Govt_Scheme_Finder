@@ -1,3 +1,4 @@
+import os
 """
 Entry point — seeds DB and starts Flask app with hourly scraper
 Run locally  : python run.py
@@ -22,6 +23,7 @@ with app.app_context():
     except Exception as e:
         print(f"⚠️  Scheduler warning: {e}")
 
-if __name__ == '__main__':
-    print("🚀 Starting Government Scheme Hub → http://127.0.0.1:5000")
-    app.run(debug=True, port=5000, use_reloader=False)
+if __name__ == "__main__":
+    print("🚀 Starting Government Scheme Hub")
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)

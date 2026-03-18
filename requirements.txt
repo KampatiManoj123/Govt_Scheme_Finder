@@ -12,3 +12,5 @@ lxml==5.1.0
 gunicorn==21.2.0
 razorpay==1.4.1
 Werkzeug==3.0.1
+setuptools
+wheel
