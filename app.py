@@ -13,7 +13,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'govscheme-super-secret-key-2024')
-app.config['MONGO_URI'] = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/govscheme')
+app.config['MONGO_URI'] = os.environ.get('MONGO_URI')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 RAZORPAY_KEY_ID     = os.environ.get('RAZORPAY_KEY_ID', '')
