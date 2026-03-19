@@ -184,7 +184,7 @@ def send_otp_email(email, otp):
             <div style="display:inline-block;background:rgba(255,255,255,0.2);border-radius:8px;
                         padding:6px 14px;margin-bottom:12px;">
               <span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:2px;">
-                🏛️ GOVERNMENT SCHEME HUB
+                GOVERNMENT-SCHEME-FINDER
               </span>
             </div>
             <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;">Password Reset OTP</h1>
@@ -214,7 +214,7 @@ def send_otp_email(email, otp):
         <tr>
           <td style="background:#f8f9fa;padding:20px 40px;border-top:1px solid #eee;text-align:center;">
             <p style="margin:0;color:#aaa;font-size:12px;">
-              © 2024 Government Scheme Hub &nbsp;|&nbsp; Do not reply to this email.
+              © 2026 Government-Scheme-Finder &nbsp;|&nbsp; Do not reply to this email.
             </p>
           </td>
         </tr>
