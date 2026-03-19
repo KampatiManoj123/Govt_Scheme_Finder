@@ -167,7 +167,11 @@ def logout():
 def send_otp_email(email, otp):
     """Send OTP email. Returns True on success, False on failure."""
     try:
-        html_content = f"""
+        msg      = Message(
+            subject    = 'Your Password Reset OTP — Government Scheme Hub',
+            recipients = [email]
+        )
+        msg.html = f"""
 <!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -181,7 +185,7 @@ def send_otp_email(email, otp):
             <div style="display:inline-block;background:rgba(255,255,255,0.2);border-radius:8px;
                         padding:6px 14px;margin-bottom:12px;">
               <span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:2px;">
-                GOVERNMENT-SCHEME-FINDER
+                🏛️ GOVERNMENT SCHEME HUB
               </span>
             </div>
             <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;">Password Reset OTP</h1>
@@ -211,7 +215,7 @@ def send_otp_email(email, otp):
         <tr>
           <td style="background:#f8f9fa;padding:20px 40px;border-top:1px solid #eee;text-align:center;">
             <p style="margin:0;color:#aaa;font-size:12px;">
-              © 2026 Government-Scheme-Finder &nbsp;|&nbsp; Do not reply to this email.
+              © 2024 Government Scheme Hub &nbsp;|&nbsp; Do not reply to this email.
             </p>
           </td>
         </tr>
@@ -220,28 +224,8 @@ def send_otp_email(email, otp):
   </table>
 </body>
 </html>"""
-
-        response = requests.post(
-            "https://api.brevo.com/v3/smtp/email",
-            headers={
-                "api-key": os.environ.get("BREVO_API_KEY"),
-                "Content-Type": "application/json"
-            },
-            json={
-                "sender": {
-                    "name": "Government Scheme Hub",
-                    "email": os.environ.get("MAIL_USERNAME")
-                },
-                "to": [{"email": email}],
-                "subject": "Your Password Reset OTP — Government-Scheme-Finder",
-                "htmlContent": html_content
-            }
-        )
-        if response.status_code == 201:
-            return True
-        else:
-            app.logger.error(f"[MAIL ERROR] {response.text}")
-            return False
+        mail.send(msg)
+        return True
     except Exception as e:
         app.logger.error(f"[MAIL ERROR] {e}")
         return False
