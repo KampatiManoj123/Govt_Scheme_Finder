@@ -226,7 +226,7 @@ def send_otp_email(email, otp):
         mail.send(msg)
         return True
     except Exception as e:
-        print(f"[MAIL ERROR] {e}")
+        app.logger.error(f"[MAIL ERROR] {e}")
         return False
 
 
