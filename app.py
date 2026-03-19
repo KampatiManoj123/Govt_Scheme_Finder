@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import os, hmac, hashlib, uuid, re, random
 import razorpay
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()
 
@@ -166,11 +167,7 @@ def logout():
 def send_otp_email(email, otp):
     """Send OTP email. Returns True on success, False on failure."""
     try:
-        msg      = Message(
-            subject    = 'Your Password Reset OTP — Government Scheme Hub',
-            recipients = [email]
-        )
-        msg.html = f"""
+        html_content = f"""
 <!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -223,8 +220,28 @@ def send_otp_email(email, otp):
   </table>
 </body>
 </html>"""
-        mail.send(msg)
-        return True
+
+        response = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "api-key": os.environ.get("BREVO_API_KEY"),
+                "Content-Type": "application/json"
+            },
+            json={
+                "sender": {
+                    "name": "Government Scheme Hub",
+                    "email": os.environ.get("MAIL_USERNAME")
+                },
+                "to": [{"email": email}],
+                "subject": "Your Password Reset OTP — Government-Scheme-Finder",
+                "htmlContent": html_content
+            }
+        )
+        if response.status_code == 201:
+            return True
+        else:
+            app.logger.error(f"[MAIL ERROR] {response.text}")
+            return False
     except Exception as e:
         app.logger.error(f"[MAIL ERROR] {e}")
         return False
